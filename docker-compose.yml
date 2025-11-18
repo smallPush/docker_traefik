@@ -1,0 +1,44 @@
+version: "3.3"
+
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:v2.4
+    restart: always
+    command:
+      - "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.http.address=:80"
+      - "--entrypoints.ssh.address=:22"
+    ports:
+      - 80:80
+      - 8080:8080
+      - 22:22
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - rubofvil_lan
+
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce:2.6.0-alpine
+    command: -H unix:///var/run/docker.sock
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./portainer_data:/data
+    labels:
+      traefik.enable: true
+      traefik.http.routers.portainer.rule: Host(`portainer.localhost`)
+      traefik.http.routers.portainer.entrypoints: http
+      traefik.http.routers.portainer.service: portainer
+      traefik.http.services.portainer.loadBalancer.server.port: 9000
+    networks:
+      - rubofvil_lan
+
+
+networks:
+  rubofvil_lan:
+    external: true
