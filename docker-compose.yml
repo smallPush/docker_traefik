@@ -1,12 +1,11 @@
-version: "3.3"
-
 services:
   traefik:
     container_name: traefik
     image: traefik:v3.6
     restart: always
     command:
-      - "--log.level=DEBUG"
+      # Optimization: Reduced log level from DEBUG to INFO to decrease CPU/IO overhead per request.
+      - "--log.level=INFO"
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
@@ -35,6 +34,9 @@ services:
       traefik.http.routers.portainer.entrypoints: http
       traefik.http.routers.portainer.service: portainer
       traefik.http.services.portainer.loadBalancer.server.port: 9000
+      # Optimization: Enable Gzip compression to reduce bandwidth usage and improve load times.
+      traefik.http.routers.portainer.middlewares: "compress"
+      traefik.http.middlewares.compress.compress: "true"
     networks:
       - rubofvil_lan
 
