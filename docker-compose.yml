@@ -4,8 +4,10 @@ services:
     image: traefik:v3.6
     restart: always
     command:
-      # Optimization: Reduced log level from DEBUG to INFO to decrease CPU/IO overhead per request.
-      - "--log.level=INFO"
+      # Optimization: Further reduced log level from INFO to WARN to decrease CPU/IO overhead per request.
+      - "--log.level=WARN"
+      # Optimization: Increase max idle connections per host to improve backend connection reuse and reduce latency.
+      - "--serverstransport.maxidleconnsperhost=100"
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
