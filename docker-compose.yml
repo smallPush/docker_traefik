@@ -21,6 +21,13 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - rubofvil_lan
+    # Optimization: Increase the maximum number of open files (nofile) to 65535.
+    # This is critical for high-concurrency proxies like Traefik to handle thousands of concurrent
+    # connections without "too many open files" errors, improving scalability and reliability under load.
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
 
   portainer:
     container_name: portainer
