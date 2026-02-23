@@ -9,3 +9,7 @@
 ## 2026-02-21 - Optimized Traefik High-Concurrency and Discovery
 **Learning:** Default `nofile` ulimits (1024) in Docker containers can bottleneck high-concurrency proxies like Traefik, leading to "too many open files" errors under load. Additionally, specifying `--providers.docker.network` reduces Traefik's internal overhead by eliminating the need to guess the correct network for service backend communication.
 **Action:** Always increase `nofile` ulimits for edge proxies and explicitly define the provider network to streamline service discovery.
+
+## 2026-02-20 - Optimized Docker Provider and Resource Limits
+**Learning:** Narrowing the Traefik Docker provider's scope to a specific network reduces service discovery overhead. Additionally, increasing the `nofile` soft limit from the default 1024 is critical for a reverse proxy to handle high concurrency without connection failures.
+**Action:** Always specify `--providers.docker.network` when using a dedicated network and ensure `ulimits` are tuned for high-concurrency workloads.
