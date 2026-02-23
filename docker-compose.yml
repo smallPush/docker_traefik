@@ -8,19 +8,41 @@ services:
       - "--log.level=WARN"
       # Optimization: Increase max idle connections per host to improve backend connection reuse and reduce latency.
       - "--serverstransport.maxidleconnsperhost=100"
+      # Optimization: Narrow Docker provider scope to the primary network to reduce overhead during service discovery.
+      - "--providers.docker.network=rubofvil_lan"
+      # Optimization: Disable version check to reduce unnecessary outbound requests on startup.
+      - "--global.checknewversion=false"
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
+      # Optimization: Narrow search scope to speed up service discovery.
+      - "--providers.docker.network=rubofvil_lan"
       - "--entrypoints.http.address=:80"
       - "--entrypoints.ssh.address=:22"
+    ulimits:
+      # Optimization: Increase nofile limits to handle high concurrency and many open connections.
+      nofile:
+        soft: 65535
+        hard: 65535
     ports:
       - 80:80
       - 8080:8080
       - 22:22
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - rubofvil_lan
+    # Optimization: Increase the maximum number of open files (nofile) to 65535.
+    # This is critical for high-concurrency proxies like Traefik to handle thousands of concurrent
+    # connections without "too many open files" errors, improving scalability and reliability under load.
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
 
   portainer:
     container_name: portainer
