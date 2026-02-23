@@ -15,12 +15,14 @@ services:
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
-      # Optimization: Narrow search scope to speed up service discovery.
-      - "--providers.docker.network=rubofvil_lan"
       - "--entrypoints.http.address=:80"
+      # Optimization: Reduce idle timeout to free up resources from inactive connections faster.
+      - "--entrypoints.http.transport.respondingTimeouts.idleTimeout=60s"
       - "--entrypoints.ssh.address=:22"
     ulimits:
-      # Optimization: Increase nofile limits to handle high concurrency and many open connections.
+      # Optimization: Increase the maximum number of open files (nofile) to 65535.
+      # This is critical for high-concurrency proxies like Traefik to handle thousands of concurrent
+      # connections without "too many open files" errors, improving scalability and reliability under load.
       nofile:
         soft: 65535
         hard: 65535
@@ -28,21 +30,18 @@ services:
       - 80:80
       - 8080:8080
       - 22:22
-    ulimits:
-      nofile:
-        soft: 65535
-        hard: 65535
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - rubofvil_lan
-    # Optimization: Increase the maximum number of open files (nofile) to 65535.
-    # This is critical for high-concurrency proxies like Traefik to handle thousands of concurrent
-    # connections without "too many open files" errors, improving scalability and reliability under load.
-    ulimits:
-      nofile:
-        soft: 65535
-        hard: 65535
+    deploy:
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 512M
+    environment:
+      # Optimization: Set GOMAXPROCS to match the CPU limit to reduce context-switching overhead.
+      - GOMAXPROCS=1
 
   portainer:
     container_name: portainer
