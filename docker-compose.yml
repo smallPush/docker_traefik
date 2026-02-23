@@ -2,7 +2,7 @@ services:
   traefik:
     container_name: traefik
     image: traefik:v3.6
-    restart: always
+    restart: unless-stopped
     command:
       # Optimization: Further reduced log level from INFO to WARN to decrease CPU/IO overhead per request.
       - "--log.level=WARN"
@@ -26,7 +26,7 @@ services:
     container_name: portainer
     image: portainer/portainer-ce:2.6.0-alpine
     command: -H unix:///var/run/docker.sock
-    restart: always
+    restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./portainer_data:/data
