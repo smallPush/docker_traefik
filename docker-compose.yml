@@ -16,8 +16,10 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.http.address=:80"
-      # Optimization: Reduce idle timeout to free up resources from inactive connections faster.
+      # Optimization: Reduce idle timeout, read timeout and write timeout to free up resources from inactive or hanging connections faster.
       - "--entrypoints.http.transport.respondingTimeouts.idleTimeout=60s"
+      - "--entrypoints.http.transport.respondingTimeouts.readTimeout=60s"
+      - "--entrypoints.http.transport.respondingTimeouts.writeTimeout=60s"
       - "--entrypoints.ssh.address=:22"
     ulimits:
       # Optimization: Increase the maximum number of open files (nofile) to 65535.
@@ -42,12 +44,17 @@ services:
     environment:
       # Optimization: Set GOMAXPROCS to match the CPU limit to reduce context-switching overhead.
       - GOMAXPROCS=1
+      # Optimization: Set GOMEMLIMIT to 90% of the memory limit to make Go GC aware of container constraints and prevent OOMs.
+      - GOMEMLIMIT=460MiB
 
   portainer:
     container_name: portainer
     image: portainer/portainer-ce:2.6.0-alpine
     command: -H unix:///var/run/docker.sock
     restart: always
+    environment:
+      # Optimization: Set GOMAXPROCS to match the CPU limit to reduce context-switching overhead.
+      - GOMAXPROCS=1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./portainer_data:/data

@@ -21,3 +21,7 @@
 ## 2026-02-22 - Optimized Go Runtime for Traefik
 **Learning:** For Go applications like Traefik running with fractional CPU limits (e.g., 0.75), the Go scheduler may still attempt to use all host CPUs, leading to excessive context switching. Explicitly setting `GOMAXPROCS` to match the integer rounded CPU limit improves efficiency.
 **Action:** Set `GOMAXPROCS` environment variable in Docker Compose to match the `deploy.resources.limits.cpus`.
+
+## 2026-02-23 - Optimized Go Runtime with GOMEMLIMIT and Timeouts
+**Learning:** Setting `GOMEMLIMIT` to approximately 90% of a container's memory limit helps the Go Garbage Collector (GC) stay within constraints and reduces GC frequency as the limit is approached. Additionally, explicit `readTimeout` and `writeTimeout` on entrypoints prevent resource exhaustion from slow or hanging connections.
+**Action:** Always set `GOMEMLIMIT` for Go-based services with memory limits (Go 1.19+) and define explicit connection timeouts to ensure predictable performance.
