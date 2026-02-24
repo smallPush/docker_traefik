@@ -43,6 +43,20 @@ class TestDockerComposePerformance(unittest.TestCase):
 
         self.assertEqual(env.get('GOMAXPROCS'), "1")
 
+    def test_traefik_gomemlimit(self):
+        """Verify Traefik has GOMEMLIMIT set."""
+        traefik = self.config.get('services', {}).get('traefik', {})
+        env = traefik.get('environment', {})
+
+        self.assertEqual(env.get('GOMEMLIMIT'), "460MiB")
+
+    def test_portainer_gomaxprocs(self):
+        """Verify Portainer has GOMAXPROCS set."""
+        portainer = self.config.get('services', {}).get('portainer', {})
+        env = portainer.get('environment', {})
+
+        self.assertEqual(env.get('GOMAXPROCS'), "1")
+
     def test_traefik_connection_pooling(self):
         """Verify Traefik connection pooling is tuned."""
         traefik = self.config.get('services', {}).get('traefik', {})
@@ -56,6 +70,14 @@ class TestDockerComposePerformance(unittest.TestCase):
         command = traefik.get('command', [])
 
         self.assertIn("--entrypoints.http.transport.respondingTimeouts.idleTimeout=60s", command)
+
+    def test_traefik_additional_timeouts(self):
+        """Verify Traefik read and write timeouts are optimized."""
+        traefik = self.config.get('services', {}).get('traefik', {})
+        command = traefik.get('command', [])
+
+        self.assertIn("--entrypoints.http.transport.respondingTimeouts.readTimeout=60s", command)
+        self.assertIn("--entrypoints.http.transport.respondingTimeouts.writeTimeout=60s", command)
 
 if __name__ == '__main__':
     unittest.main()
