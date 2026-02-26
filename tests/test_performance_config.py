@@ -72,5 +72,21 @@ class TestDockerComposePerformance(unittest.TestCase):
         self.assertIn("--entrypoints.http.transport.respondingTimeouts.readTimeout=60s", command)
         self.assertIn("--entrypoints.http.transport.respondingTimeouts.writeTimeout=60s", command)
 
+    def test_portainer_ulimits_nofile(self):
+        """Verify Portainer has high nofile ulimits."""
+        portainer = self.config.get('services', {}).get('portainer', {})
+        ulimits = portainer.get('ulimits', {})
+        nofile = ulimits.get('nofile', {})
+
+        self.assertEqual(nofile.get('soft'), 65535)
+        self.assertEqual(nofile.get('hard'), 65535)
+
+    def test_portainer_gomaxprocs(self):
+        """Verify Portainer has GOMAXPROCS set."""
+        portainer = self.config.get('services', {}).get('portainer', {})
+        env = portainer.get('environment', {})
+
+        self.assertEqual(env.get('GOMAXPROCS'), "1")
+
 if __name__ == '__main__':
     unittest.main()
