@@ -25,3 +25,7 @@
 ## 2026-02-25 - Optimized Go GC and Traefik Timeouts
 **Learning:** For Go applications in memory-constrained containers, setting 'GOMEMLIMIT' to 90% of the limit prevents aggressive GC cycles while avoiding OOM kills. Additionally, explicit 'readTimeout' and 'writeTimeout' on Traefik entrypoints prevent resource exhaustion from slow or hanging connections.
 **Action:** Set 'GOMEMLIMIT' for Go services and tune entrypoint timeouts to improve overall stack resilience and efficiency.
+
+## 2026-02-26 - Optimized Portainer Go Scheduler and Scalability
+**Learning:** For Go applications running with fractional CPU limits, the Go scheduler may still attempt to use all host CPUs, leading to excessive context switching and reduced throughput. Explicitly setting `GOMAXPROCS=1` for a service with 0.5 CPU limit improves efficiency. Additionally, increasing `ulimits` for all server-side components (like Portainer) ensures they can scale to handle many concurrent connections, matching the edge proxy's capabilities.
+**Action:** Always set `GOMAXPROCS` to match the integer rounded CPU limit and tune `ulimits` for high-concurrency Go services.

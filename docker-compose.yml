@@ -53,6 +53,11 @@ services:
     image: portainer/portainer-ce:2.6.0-alpine
     command: -H unix:///var/run/docker.sock
     restart: always
+    ulimits:
+      # Optimization: Match Traefik's nofile ulimits for scalability.
+      nofile:
+        soft: 65535
+        hard: 65535
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./portainer_data:/data
@@ -67,6 +72,9 @@ services:
       traefik.http.middlewares.compress.compress: "true"
     networks:
       - rubofvil_lan
+    environment:
+      # Optimization: Set GOMAXPROCS to match the CPU limit to reduce context-switching overhead.
+      - GOMAXPROCS=1
     deploy:
       resources:
         limits:
