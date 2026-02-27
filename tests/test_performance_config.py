@@ -72,5 +72,12 @@ class TestDockerComposePerformance(unittest.TestCase):
         self.assertIn("--entrypoints.http.transport.respondingTimeouts.readTimeout=60s", command)
         self.assertIn("--entrypoints.http.transport.respondingTimeouts.writeTimeout=60s", command)
 
+    def test_portainer_gomaxprocs(self):
+        """Verify Portainer has GOMAXPROCS set."""
+        portainer = self.config.get('services', {}).get('portainer', {})
+        env = portainer.get('environment', {})
+
+        self.assertEqual(env.get('GOMAXPROCS'), "1")
+
 if __name__ == '__main__':
     unittest.main()
