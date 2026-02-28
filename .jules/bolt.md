@@ -25,3 +25,7 @@
 ## 2026-02-25 - Optimized Go GC and Traefik Timeouts
 **Learning:** For Go applications in memory-constrained containers, setting 'GOMEMLIMIT' to 90% of the limit prevents aggressive GC cycles while avoiding OOM kills. Additionally, explicit 'readTimeout' and 'writeTimeout' on Traefik entrypoints prevent resource exhaustion from slow or hanging connections.
 **Action:** Set 'GOMEMLIMIT' for Go services and tune entrypoint timeouts to improve overall stack resilience and efficiency.
+
+## 2026-02-26 - Version-Specific Go Tuning and Resource Reservations
+**Learning:** Not all Go-based images support 'GOMEMLIMIT' (added in Go 1.19). For example, older Portainer images like 'portainer-ce:2.6.0' use an earlier Go version where this variable is a no-op. Additionally, defining 'reservations' in Docker Compose provides a performance baseline by ensuring the scheduler always allocates a minimum amount of resources to critical services.
+**Action:** Check the Go version of a container image before applying 'GOMEMLIMIT' and use resource reservations to prevent service starvation.
