@@ -65,6 +65,14 @@ services:
       # Optimization: Enable Gzip compression to reduce bandwidth usage and improve load times.
       traefik.http.routers.portainer.middlewares: "compress"
       traefik.http.middlewares.compress.compress: "true"
+    ulimits:
+      # Optimization: Increase nofile limits to handle higher concurrency and prevent connection failures.
+      nofile:
+        soft: 65535
+        hard: 65535
+    environment:
+      # Optimization: Set GOMAXPROCS to 1 to match the CPU limit (0.50) and improve Go runtime efficiency.
+      - GOMAXPROCS=1
     networks:
       - rubofvil_lan
     deploy:
