@@ -39,6 +39,11 @@ services:
       - rubofvil_lan
     deploy:
       resources:
+        # Optimization: Resource reservations ensure Traefik always has a minimum CPU/Memory allocation.
+        # This prevents performance degradation and "starvation" when other containers compete for resources.
+        reservations:
+          cpus: '0.25'
+          memory: 128M
         limits:
           cpus: '0.75'
           memory: 512M

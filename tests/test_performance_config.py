@@ -36,6 +36,16 @@ class TestDockerComposePerformance(unittest.TestCase):
         self.assertEqual(limits.get('cpus'), 0.75)
         self.assertEqual(limits.get('memory'), "536870912") # 512M in bytes
 
+    def test_traefik_resource_reservations(self):
+        """Verify Traefik has resource reservations defined."""
+        traefik = self.config.get('services', {}).get('traefik', {})
+        deploy = traefik.get('deploy', {})
+        resources = deploy.get('resources', {})
+        reservations = resources.get('reservations', {})
+
+        self.assertEqual(reservations.get('cpus'), 0.25)
+        self.assertEqual(reservations.get('memory'), "134217728") # 128M in bytes
+
     def test_traefik_gomaxprocs(self):
         """Verify Traefik has GOMAXPROCS set."""
         traefik = self.config.get('services', {}).get('traefik', {})
@@ -80,6 +90,16 @@ class TestDockerComposePerformance(unittest.TestCase):
 
         self.assertEqual(nofile.get('soft'), 65535)
         self.assertEqual(nofile.get('hard'), 65535)
+
+    def test_portainer_resource_limits(self):
+        """Verify Portainer has resource limits defined."""
+        portainer = self.config.get('services', {}).get('portainer', {})
+        deploy = portainer.get('deploy', {})
+        resources = deploy.get('resources', {})
+        limits = resources.get('limits', {})
+
+        self.assertEqual(limits.get('cpus'), 0.5)
+        self.assertEqual(limits.get('memory'), "268435456") # 256M in bytes
 
     def test_portainer_gomaxprocs(self):
         """Verify Portainer has GOMAXPROCS set."""
