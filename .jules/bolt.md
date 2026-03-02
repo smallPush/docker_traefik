@@ -23,5 +23,14 @@
 **Action:** Set `GOMAXPROCS` environment variable in Docker Compose to match the `deploy.resources.limits.cpus`.
 
 ## 2026-02-23 - Optimized Go Runtime with GOMEMLIMIT and Timeouts
+
 **Learning:** Setting `GOMEMLIMIT` to approximately 90% of a container's memory limit helps the Go Garbage Collector (GC) stay within constraints and reduces GC frequency as the limit is approached. Additionally, explicit `readTimeout` and `writeTimeout` on entrypoints prevent resource exhaustion from slow or hanging connections.
 **Action:** Always set `GOMEMLIMIT` for Go-based services with memory limits (Go 1.19+) and define explicit connection timeouts to ensure predictable performance.
+## 2026-02-25 - Optimized Go GC and Traefik Timeouts
+**Learning:** For Go applications in memory-constrained containers, setting 'GOMEMLIMIT' to 90% of the limit prevents aggressive GC cycles while avoiding OOM kills. Additionally, explicit 'readTimeout' and 'writeTimeout' on Traefik entrypoints prevent resource exhaustion from slow or hanging connections.
+**Action:** Set 'GOMEMLIMIT' for Go services and tune entrypoint timeouts to improve overall stack resilience and efficiency.
+
+## 2026-02-26 - Portainer Runtime Tuning and Test Robustness
+
+**Learning:** Portainer CE 2.6.0 (Go-based) performance is optimized by setting 'GOMAXPROCS=1' (matching its 0.5 CPU limit) and increasing 'nofile' ulimits to 65535. Note that GOMEMLIMIT is not supported in this version due to its older Go runtime. Additionally, test scripts validating environment variables in 'docker-compose.yml' must handle both list and dictionary normalization to be robust.
+**Action:** Align 'GOMAXPROCS' with fractional CPU limits for all Go services and implement robust environment variable parsing in performance tests.

@@ -18,6 +18,7 @@ services:
       - "--entrypoints.http.address=:80"
       # Optimization: Reduce idle timeout, read timeout and write timeout to free up resources from inactive or hanging connections faster.
       - "--entrypoints.http.transport.respondingTimeouts.idleTimeout=60s"
+      # Optimization: Set read and write timeouts to prevent resource exhaustion from hanging connections.
       - "--entrypoints.http.transport.respondingTimeouts.readTimeout=60s"
       - "--entrypoints.http.transport.respondingTimeouts.writeTimeout=60s"
       - "--entrypoints.ssh.address=:22"
@@ -44,7 +45,7 @@ services:
     environment:
       # Optimization: Set GOMAXPROCS to match the CPU limit to reduce context-switching overhead.
       - GOMAXPROCS=1
-      # Optimization: Set GOMEMLIMIT to 90% of the memory limit to make Go GC aware of container constraints and prevent OOMs.
+      # Optimization: Set GOMEMLIMIT to 90% of the memory limit to optimize GC and prevent OOM kills.
       - GOMEMLIMIT=460MiB
 
   portainer:
@@ -67,6 +68,14 @@ services:
       # Optimization: Enable Gzip compression to reduce bandwidth usage and improve load times.
       traefik.http.routers.portainer.middlewares: "compress"
       traefik.http.middlewares.compress.compress: "true"
+    ulimits:
+      # Optimization: Increase nofile limits to handle higher concurrency and prevent connection failures.
+      nofile:
+        soft: 65535
+        hard: 65535
+    environment:
+      # Optimization: Set GOMAXPROCS to 1 to match the CPU limit (0.50) and improve Go runtime efficiency.
+      - GOMAXPROCS=1
     networks:
       - rubofvil_lan
     deploy:

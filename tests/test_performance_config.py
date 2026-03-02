@@ -71,13 +71,35 @@ class TestDockerComposePerformance(unittest.TestCase):
 
         self.assertIn("--entrypoints.http.transport.respondingTimeouts.idleTimeout=60s", command)
 
-    def test_traefik_additional_timeouts(self):
-        """Verify Traefik read and write timeouts are optimized."""
+    def test_traefik_read_write_timeouts(self):
+        """Verify Traefik read and write timeouts are set."""
         traefik = self.config.get('services', {}).get('traefik', {})
         command = traefik.get('command', [])
 
         self.assertIn("--entrypoints.http.transport.respondingTimeouts.readTimeout=60s", command)
         self.assertIn("--entrypoints.http.transport.respondingTimeouts.writeTimeout=60s", command)
+
+    def test_portainer_ulimits_nofile(self):
+        """Verify Portainer has high nofile ulimits."""
+        portainer = self.config.get('services', {}).get('portainer', {})
+        ulimits = portainer.get('ulimits', {})
+        nofile = ulimits.get('nofile', {})
+
+        self.assertEqual(nofile.get('soft'), 65535)
+        self.assertEqual(nofile.get('hard'), 65535)
+
+    def test_portainer_gomaxprocs(self):
+        """Verify Portainer has GOMAXPROCS set."""
+        portainer = self.config.get('services', {}).get('portainer', {})
+        env = portainer.get('environment', {})
+
+        # Normalize environment to a dictionary regardless of its format in docker-compose.yml.
+        if isinstance(env, list):
+            env_dict = dict(item.split('=', 1) for item in env)
+        else:
+            env_dict = env
+
+        self.assertEqual(env_dict.get('GOMAXPROCS'), "1")
 
 if __name__ == '__main__':
     unittest.main()
