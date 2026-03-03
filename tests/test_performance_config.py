@@ -46,19 +46,22 @@ class TestDockerComposePerformance(unittest.TestCase):
         self.assertEqual(reservations.get('cpus'), 0.25)
         self.assertEqual(reservations.get('memory'), "134217728") # 128M in bytes
 
+    def _get_env_dict(self, service_name):
+        service = self.config.get('services', {}).get(service_name, {})
+        env = service.get('environment', {})
+        if isinstance(env, list):
+            return dict(item.split('=', 1) for item in env)
+        return env
+
     def test_traefik_gomaxprocs(self):
         """Verify Traefik has GOMAXPROCS set."""
-        traefik = self.config.get('services', {}).get('traefik', {})
-        env = traefik.get('environment', {})
-
-        self.assertEqual(env.get('GOMAXPROCS'), "1")
+        env_dict = self._get_env_dict('traefik')
+        self.assertEqual(env_dict.get('GOMAXPROCS'), "1")
 
     def test_traefik_gomemlimit(self):
         """Verify Traefik has GOMEMLIMIT set."""
-        traefik = self.config.get('services', {}).get('traefik', {})
-        env = traefik.get('environment', {})
-
-        self.assertEqual(env.get('GOMEMLIMIT'), "460MiB")
+        env_dict = self._get_env_dict('traefik')
+        self.assertEqual(env_dict.get('GOMEMLIMIT'), "460MiB")
 
     def test_traefik_connection_pooling(self):
         """Verify Traefik connection pooling is tuned."""
@@ -103,16 +106,19 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_portainer_gomaxprocs(self):
         """Verify Portainer has GOMAXPROCS set."""
-        portainer = self.config.get('services', {}).get('portainer', {})
-        env = portainer.get('environment', {})
-
-        # Normalize environment to a dictionary regardless of its format in docker-compose.yml.
-        if isinstance(env, list):
-            env_dict = dict(item.split('=', 1) for item in env)
-        else:
-            env_dict = env
-
+        env_dict = self._get_env_dict('portainer')
         self.assertEqual(env_dict.get('GOMAXPROCS'), "1")
+
+    def test_portainer_resource_reservations(self):
+        """Verify Portainer has resource reservations defined."""
+        portainer = self.config.get('services', {}).get('portainer', {})
+        deploy = portainer.get('deploy', {})
+        resources = deploy.get('resources', {})
+        reservations = resources.get('reservations', {})
+
+        # docker compose config --format json normalizes cpus to float and memory to string (bytes)
+        self.assertEqual(float(reservations.get('cpus')), 0.10)
+        self.assertEqual(int(reservations.get('memory')), 128 * 1024 * 1024)
 
 if __name__ == '__main__':
     unittest.main()
