@@ -82,6 +82,11 @@ services:
       - rubofvil_lan
     deploy:
       resources:
+        # Optimization: Portainer resource reservations ensure it remains responsive and prevents starvation
+        # during high system load.
+        reservations:
+          cpus: '0.10'
+          memory: 128M
         limits:
           cpus: '0.50'
           memory: 256M
