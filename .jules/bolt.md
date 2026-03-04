@@ -29,3 +29,7 @@
 ## 2026-02-26 - Portainer Runtime Tuning and Test Robustness
 **Learning:** Portainer CE 2.6.0 (Go-based) performance is optimized by setting 'GOMAXPROCS=1' (matching its 0.5 CPU limit) and increasing 'nofile' ulimits to 65535. Note that GOMEMLIMIT is not supported in this version due to its older Go runtime. Additionally, test scripts validating environment variables in 'docker-compose.yml' must handle both list and dictionary normalization to be robust.
 **Action:** Align 'GOMAXPROCS' with fractional CPU limits for all Go services and implement robust environment variable parsing in performance tests.
+
+## 2026-02-27 - Portainer Resource Reservations and Test Refactoring
+**Learning:** Adding resource reservations for management services like Portainer prevents performance degradation and starvation when the host system is under heavy load. Furthermore, refactoring test suites to use a centralized normalization method for Docker environment variables (handling both list and dict formats) significantly improves maintainability and reliability of performance assertions.
+**Action:** Always define resource reservations for critical services and use a common `_get_env_dict` helper in performance tests.
