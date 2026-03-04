@@ -12,7 +12,6 @@ services:
       - "--providers.docker.network=rubofvil_lan"
       # Optimization: Disable version check to reduce unnecessary outbound requests on startup.
       - "--global.checknewversion=false"
-      - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.http.address=:80"
@@ -31,7 +30,6 @@ services:
         hard: 65535
     ports:
       - 80:80
-      - 8080:8080
       - 22:22
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
