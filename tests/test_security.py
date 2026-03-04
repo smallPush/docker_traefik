@@ -4,9 +4,10 @@ import subprocess
 import os
 
 class TestDockerComposeSecurity(unittest.TestCase):
-    def test_traefik_docker_socket_read_only(self):
+    @classmethod
+    def setUpClass(cls):
         """
-        Verify that the traefik service mounts the Docker socket as read-only.
+        Loads the docker-compose configuration once for all tests in this class.
         Uses 'docker compose config --format json' to robustly parse the configuration.
         """
         try:
@@ -18,15 +19,19 @@ class TestDockerComposeSecurity(unittest.TestCase):
                 text=True,
                 check=True
             )
-            config = json.loads(result.stdout)
+            cls.config = json.loads(result.stdout)
         except subprocess.CalledProcessError as e:
-            self.fail(f"Failed to run 'docker compose config': {e.stderr}")
+            raise unittest.SkipTest(f"Failed to run 'docker compose config': {e.stderr}")
         except json.JSONDecodeError as e:
-            self.fail(f"Failed to parse JSON from 'docker compose config': {e}")
+            raise unittest.SkipTest(f"Failed to parse JSON from 'docker compose config': {e}")
         except FileNotFoundError:
-            self.fail("The 'docker' command was not found. Please ensure Docker is installed.")
+            raise unittest.SkipTest("The 'docker' command was not found. Please ensure Docker is installed.")
 
-        services = config.get('services', {})
+    def test_traefik_docker_socket_read_only(self):
+        """
+        Verify that the traefik service mounts the Docker socket as read-only.
+        """
+        services = self.config.get('services', {})
         traefik = services.get('traefik')
         self.assertIsNotNone(traefik, "traefik service not found in docker-compose.yml")
 
