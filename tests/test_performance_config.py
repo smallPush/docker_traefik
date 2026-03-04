@@ -114,5 +114,13 @@ class TestDockerComposePerformance(unittest.TestCase):
 
         self.assertEqual(env_dict.get('GOMAXPROCS'), "1")
 
+    def test_portainer_gzip_compression(self):
+        """Verify Portainer has Gzip compression labels enabled."""
+        portainer = self.config.get('services', {}).get('portainer', {})
+        labels = portainer.get('labels', {})
+
+        self.assertEqual(labels.get('traefik.http.routers.portainer.middlewares'), "compress")
+        self.assertEqual(labels.get('traefik.http.middlewares.compress.compress'), "true")
+
 if __name__ == '__main__':
     unittest.main()
