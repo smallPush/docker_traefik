@@ -1,7 +1,6 @@
 import unittest
 import json
 import subprocess
-import os
 
 class TestDockerComposeSecurity(unittest.TestCase):
     def test_traefik_docker_socket_read_only(self):
