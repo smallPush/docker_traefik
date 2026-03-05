@@ -85,6 +85,24 @@ class TestDockerComposePerformance(unittest.TestCase):
         self.assertIn("--entrypoints.http.transport.respondingTimeouts.readTimeout=60s", command)
         self.assertIn("--entrypoints.http.transport.respondingTimeouts.writeTimeout=60s", command)
 
+    def test_traefik_global_compression(self):
+        """Verify Traefik has global compression enabled on the http entrypoint."""
+        traefik = self.config.get('services', {}).get('traefik', {})
+        command = traefik.get('command', [])
+
+        self.assertIn("--entrypoints.http.http.middlewares=compress@docker", command)
+
+    def test_traefik_compress_middleware_definition(self):
+        """Verify Traefik has the compress middleware defined."""
+        traefik = self.config.get('services', {}).get('traefik', {})
+        labels = traefik.get('labels', {})
+
+        # Labels can be a list or a dict in the normalized JSON
+        if isinstance(labels, list):
+            self.assertIn("traefik.http.middlewares.compress.compress=true", labels)
+        else:
+            self.assertEqual(labels.get("traefik.http.middlewares.compress.compress"), "true")
+
     def test_portainer_ulimits_nofile(self):
         """Verify Portainer has high nofile ulimits."""
         portainer = self.config.get('services', {}).get('portainer', {})

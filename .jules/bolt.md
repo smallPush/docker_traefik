@@ -33,3 +33,7 @@
 ## 2026-02-27 - Portainer Resource Reservations and Test Refactoring
 **Learning:** Adding resource reservations for management services like Portainer prevents performance degradation and starvation when the host system is under heavy load. Furthermore, refactoring test suites to use a centralized normalization method for Docker environment variables (handling both list and dict formats) significantly improves maintainability and reliability of performance assertions.
 **Action:** Always define resource reservations for critical services and use a common `_get_env_dict` helper in performance tests.
+
+## 2026-02-28 - Global Compression with Traefik v3 Default Middlewares
+**Learning:** Traefik v3 allows defining default middlewares for entrypoints. Moving compression from individual services to the entrypoint level ensures all services benefit from Gzip/Brotli by default, reducing configuration redundancy and ensuring a consistent performance baseline across the entire infrastructure.
+**Action:** Use `--entrypoints.<name>.http.middlewares` to apply performance-enhancing middlewares like `compress` globally at the edge.
