@@ -137,5 +137,12 @@ class TestDockerComposePerformance(unittest.TestCase):
         env_dict = self._get_env_dict('portainer')
         self.assertEqual(env_dict.get('GOMAXPROCS'), "1")
 
+    def test_portainer_snapshot_interval(self):
+        """Verify Portainer snapshot interval is optimized."""
+        portainer = self.config.get('services', {}).get('portainer', {})
+        command = portainer.get('command', [])
+
+        self.assertIn("--snapshot-interval=1h", command)
+
 if __name__ == '__main__':
     unittest.main()

@@ -63,7 +63,11 @@ services:
   portainer:
     container_name: portainer
     image: portainer/portainer-ce:2.6.0-alpine
-    command: -H unix:///var/run/docker.sock
+    command:
+      - "-H"
+      - "unix:///var/run/docker.sock"
+      # Optimization: Increase snapshot interval from default 5m to 1h to reduce background Docker socket polling.
+      - "--snapshot-interval=1h"
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

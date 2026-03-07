@@ -37,3 +37,7 @@
 ## 2026-02-28 - Global Compression with Traefik v3 Default Middlewares
 **Learning:** Traefik v3 allows defining default middlewares for entrypoints. Moving compression from individual services to the entrypoint level ensures all services benefit from Gzip/Brotli by default, reducing configuration redundancy and ensuring a consistent performance baseline across the entire infrastructure.
 **Action:** Use `--entrypoints.<name>.http.middlewares` to apply performance-enhancing middlewares like `compress` globally at the edge.
+
+## 2026-03-01 - Optimized Portainer Background Overhead
+**Learning:** Portainer's default snapshot interval (5m) creates unnecessary periodic background Docker socket polling in stable environments. Increasing this to 1h significantly reduces background CPU/IO noise without impacting core functionality.
+**Action:** Tune `--snapshot-interval` for management services to reduce unnecessary polling overhead.
