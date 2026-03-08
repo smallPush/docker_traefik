@@ -63,12 +63,48 @@ class TestDockerComposePerformance(unittest.TestCase):
         env_dict = self._get_env_dict('traefik')
         self.assertEqual(env_dict.get('GOMEMLIMIT'), "460MiB")
 
+    def test_traefik_api_dashboard(self):
+        """Verify Traefik API dashboard is enabled."""
+        traefik = self.config.get('services', {}).get('traefik', {})
+        command = traefik.get('command', [])
+
+        self.assertIn("--api.dashboard=true", command)
+        self.assertIn("--api.insecure=true", command)
+
+    def test_traefik_ssh_entrypoint(self):
+        """Verify Traefik SSH entrypoint is present."""
+        traefik = self.config.get('services', {}).get('traefik', {})
+        command = traefik.get('command', [])
+
+        self.assertIn("--entrypoints.ssh.address=:22", command)
+
+    def test_traefik_dashboard_router(self):
+        """Verify Traefik dashboard router is configured."""
+        traefik = self.config.get('services', {}).get('traefik', {})
+        labels = traefik.get('labels', {})
+
+        if isinstance(labels, list):
+            self.assertIn("traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)", labels)
+            self.assertIn("traefik.http.routers.dashboard.service=api@internal", labels)
+            self.assertIn("traefik.http.routers.dashboard.entrypoints=http", labels)
+        else:
+            self.assertEqual(labels.get("traefik.http.routers.dashboard.rule"), "Host(`traefik.localhost`)")
+            self.assertEqual(labels.get("traefik.http.routers.dashboard.service"), "api@internal")
+            self.assertEqual(labels.get("traefik.http.routers.dashboard.entrypoints"), "http")
+
+    def test_traefik_max_idle_conns(self):
+        """Verify Traefik global connection pooling is scaled."""
+        traefik = self.config.get('services', {}).get('traefik', {})
+        command = traefik.get('command', [])
+
+        self.assertIn("--serverstransport.maxidleconns=1000", command)
+
     def test_traefik_connection_pooling(self):
         """Verify Traefik connection pooling is tuned."""
         traefik = self.config.get('services', {}).get('traefik', {})
         command = traefik.get('command', [])
 
-        self.assertIn("--serverstransport.maxidleconnsperhost=100", command)
+        self.assertIn("--serverstransport.maxidleconnsperhost=250", command)
 
     def test_traefik_idle_timeout(self):
         """Verify Traefik idle timeout is optimized."""

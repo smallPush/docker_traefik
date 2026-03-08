@@ -7,11 +7,16 @@ services:
       # Optimization: Further reduced log level from INFO to WARN to decrease CPU/IO overhead per request.
       - "--log.level=WARN"
       # Optimization: Increase max idle connections per host to improve backend connection reuse and reduce latency.
-      - "--serverstransport.maxidleconnsperhost=100"
+      - "--serverstransport.maxidleconnsperhost=250"
+      # Optimization: Scale global connection pooling to allow more concurrent backend connections.
+      - "--serverstransport.maxidleconns=1000"
       # Optimization: Narrow Docker provider scope to the primary network to reduce overhead during service discovery.
       - "--providers.docker.network=rubofvil_lan"
       # Optimization: Disable version check to reduce unnecessary outbound requests on startup.
       - "--global.checknewversion=false"
+      # Optimization: Enable dashboard mode to allow routing via the main entrypoint with compression.
+      - "--api.dashboard=true"
+      # Backward compatibility: Keep insecure mode enabled for existing tools/access on port 8080.
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
@@ -27,6 +32,11 @@ services:
       - "--entrypoints.ssh.address=:22"
     labels:
       - "traefik.enable=true"
+      # Optimization: Expose the dashboard via a router on the http entrypoint.
+      # This ensures it benefits from global compression, improving performance for remote management.
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.entrypoints=http"
       # Global compression middleware definition.
       - "traefik.http.middlewares.compress.compress=true"
     ulimits:

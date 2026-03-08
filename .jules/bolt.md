@@ -1,5 +1,5 @@
 ## 2026-02-18 - Optimized Traefik Logging and Compression
-**Learning:** `DEBUG` log level in Traefik significantly impacts throughput and increases CPU/IO overhead. Enabling `compress` middleware at the edge reduces bandwidth usage and improves perceived load time for web applications like Portainer.
+**Learning:** `DEBUG` log level in Traefik significantly impacts throughput and increases CPU/IO overhead. Enabling `compress` middleware at the edge reduces bandwidth usage and improves load times for web applications like Portainer.
 **Action:** Always prefer `INFO` or `ERROR` log levels in production and enable Gzip compression for text-based service responses.
 
 ## 2026-02-19 - Tuned Traefik Connection Pooling
@@ -41,3 +41,7 @@
 ## 2026-03-01 - Optimized Portainer Background Overhead
 **Learning:** Portainer's default snapshot interval (5m) creates unnecessary periodic background Docker socket polling in stable environments. Increasing this to 1h significantly reduces background CPU/IO noise without impacting core functionality.
 **Action:** Tune `--snapshot-interval` for management services to reduce unnecessary polling overhead.
+
+## 2026-03-08 - Optimized Dashboard Performance and Connection Scaling
+**Learning:** Routing management dashboards via Traefik labels (using the `api@internal` service) allows them to benefit from global performance middlewares like compression, even if the insecure API is maintained for backward compatibility. Furthermore, scaling both `maxIdleConns` (global) and `maxIdleConnsPerHost` (per-host) is essential for maximizing throughput in proxies handling multiple concurrent backend connections.
+**Action:** Always route internal services through optimized entrypoints and tune both levels of connection pooling for high-concurrency workloads.
