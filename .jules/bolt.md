@@ -45,3 +45,7 @@
 ## 2026-03-08 - Optimized Dashboard Performance and Connection Scaling
 **Learning:** Routing management dashboards via Traefik labels (using the `api@internal` service) allows them to benefit from global performance middlewares like compression, even if the insecure API is maintained for backward compatibility. Furthermore, scaling both `maxIdleConns` (global) and `maxIdleConnsPerHost` (per-host) is essential for maximizing throughput in proxies handling multiple concurrent backend connections.
 **Action:** Always route internal services through optimized entrypoints and tune both levels of connection pooling for high-concurrency workloads.
+
+## 2026-03-10 - Optimized Test Suite Performance via Configuration Caching
+**Learning:** Repetitive execution of expensive external commands (like `docker compose config`) within a test suite creates a significant and avoidable bottleneck. Caching the parsed configuration at the class level (`setUpClass`) instead of the method level (`setUp`) can yield massive relative performance gains (e.g., ~44% reduction in total execution time).
+**Action:** Always use `setUpClass` to load and parse shared infrastructure configurations in test suites to minimize subprocess overhead.
