@@ -121,6 +121,14 @@ class TestDockerComposePerformance(unittest.TestCase):
         self.assertIn("--entrypoints.http.transport.respondingTimeouts.readTimeout=60s", command)
         self.assertIn("--entrypoints.http.transport.respondingTimeouts.writeTimeout=60s", command)
 
+    def test_traefik_forwarding_timeouts(self):
+        """Verify Traefik forwarding timeouts are optimized."""
+        traefik = self.config.get('services', {}).get('traefik', {})
+        command = traefik.get('command', [])
+
+        self.assertIn("--serverstransport.forwardingTimeouts.dialTimeout=2s", command)
+        self.assertIn("--serverstransport.forwardingTimeouts.responseHeaderTimeout=30s", command)
+
     def test_traefik_global_compression(self):
         """Verify Traefik has global compression enabled on the http entrypoint."""
         traefik = self.config.get('services', {}).get('traefik', {})
