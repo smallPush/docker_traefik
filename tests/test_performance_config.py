@@ -38,6 +38,13 @@ class TestDockerComposePerformance(unittest.TestCase):
         self.assertEqual(reservations.get('cpus'), 0.25)
         self.assertEqual(reservations.get('memory'), "134217728") # 128M in bytes
 
+    def test_traefik_log_level(self):
+        """Verify Traefik log level is set to WARN."""
+        traefik = self.config.get('services', {}).get('traefik', {})
+        command = traefik.get('command', [])
+
+        self.assertIn("--log.level=WARN", command)
+
     def _get_env_dict(self, service_name):
         """Normalize environment to a dictionary regardless of its format."""
         env = self.config.get('services', {}).get(service_name, {}).get('environment', {})
