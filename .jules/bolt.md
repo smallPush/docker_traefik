@@ -22,11 +22,16 @@
 **Learning:** For Go applications like Traefik running with fractional CPU limits (e.g., 0.75), the Go scheduler may still attempt to use all host CPUs, leading to excessive context switching. Explicitly setting `GOMAXPROCS` to match the integer rounded CPU limit improves efficiency.
 **Action:** Set `GOMAXPROCS` environment variable in Docker Compose to match the `deploy.resources.limits.cpus`.
 
+## 2026-02-23 - Optimized Go Runtime with GOMEMLIMIT and Timeouts
+
+**Learning:** Setting `GOMEMLIMIT` to approximately 90% of a container's memory limit helps the Go Garbage Collector (GC) stay within constraints and reduces GC frequency as the limit is approached. Additionally, explicit `readTimeout` and `writeTimeout` on entrypoints prevent resource exhaustion from slow or hanging connections.
+**Action:** Always set `GOMEMLIMIT` for Go-based services with memory limits (Go 1.19+) and define explicit connection timeouts to ensure predictable performance.
 ## 2026-02-25 - Optimized Go GC and Traefik Timeouts
 **Learning:** For Go applications in memory-constrained containers, setting 'GOMEMLIMIT' to 90% of the limit prevents aggressive GC cycles while avoiding OOM kills. Additionally, explicit 'readTimeout' and 'writeTimeout' on Traefik entrypoints prevent resource exhaustion from slow or hanging connections.
 **Action:** Set 'GOMEMLIMIT' for Go services and tune entrypoint timeouts to improve overall stack resilience and efficiency.
 
 ## 2026-02-26 - Portainer Runtime Tuning and Test Robustness
+
 **Learning:** Portainer CE 2.6.0 (Go-based) performance is optimized by setting 'GOMAXPROCS=1' (matching its 0.5 CPU limit) and increasing 'nofile' ulimits to 65535. Note that GOMEMLIMIT is not supported in this version due to its older Go runtime. Additionally, test scripts validating environment variables in 'docker-compose.yml' must handle both list and dictionary normalization to be robust.
 **Action:** Align 'GOMAXPROCS' with fractional CPU limits for all Go services and implement robust environment variable parsing in performance tests.
 
@@ -53,3 +58,7 @@
 ## 2026-03-11 - Traefik CLI Casing and Forwarding Timeouts
 **Learning:** Traefik CLI flags in the `command` section of `docker-compose.yml` are strictly case-sensitive and must be lowercase (e.g., `--serverstransport.forwardingtimeouts.dialtimeout=2s`). CamelCase flags are unrecognized and will cause the service to fail on startup.
 **Action:** Always use lowercase for Traefik static configuration flags and verify their presence in the `docker compose config` output with corresponding lowercase assertions.
+
+## 2026-03-11 - Optimized Traefik Forwarding Timeouts
+**Learning:** Default forwarding timeouts in Traefik can be too high for internal Docker networks. Reducing `dialTimeout` to 2s and setting `responseHeaderTimeout` to 30s allows the proxy to fail fast and release resources when a backend is unreachable or slow, preventing resource exhaustion during backend failure scenarios. However, applying similar aggressive responding timeouts to SSH entrypoints is a breaking change for long-lived sessions.
+**Action:** Tune `serverstransport` forwarding timeouts for fast failure on internal networks, but avoid aggressive responding timeouts on entrypoints used for persistent connections like SSH.
