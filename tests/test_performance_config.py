@@ -1,21 +1,13 @@
 import unittest
-import json
-import subprocess
-import os
+try:
+    from .config_utils import get_docker_compose_config
+except ImportError:
+    from config_utils import get_docker_compose_config
 
 class TestDockerComposePerformance(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        try:
-            result = subprocess.run(
-                ['docker', 'compose', 'config', '--format', 'json'],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            cls.config = json.loads(result.stdout)
-        except Exception as e:
-            raise unittest.SkipTest(f"Failed to load docker-compose config: {e}")
+        cls.config = get_docker_compose_config()
 
     def test_traefik_ulimits_nofile(self):
         """Verify Traefik has high nofile ulimits."""

@@ -1,7 +1,8 @@
 import unittest
-import json
-import subprocess
-import os
+try:
+    from .config_utils import get_docker_compose_config
+except ImportError:
+    from config_utils import get_docker_compose_config
 
 class TestDockerComposeSecurity(unittest.TestCase):
     @classmethod
@@ -10,20 +11,7 @@ class TestDockerComposeSecurity(unittest.TestCase):
         Load and parse the Docker Compose configuration once for all tests in this class.
         This significantly reduces total test execution time by avoiding redundant 'docker compose config' calls.
         """
-        try:
-            result = subprocess.run(
-                ['docker', 'compose', 'config', '--format', 'json'],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            cls.config = json.loads(result.stdout)
-        except subprocess.CalledProcessError as e:
-            raise unittest.SkipTest(f"Failed to run 'docker compose config': {e.stderr}")
-        except json.JSONDecodeError as e:
-            raise unittest.SkipTest(f"Failed to parse JSON from 'docker compose config': {e}")
-        except FileNotFoundError:
-            raise unittest.SkipTest("The 'docker' command was not found. Please ensure Docker is installed.")
+        cls.config = get_docker_compose_config()
 
     def test_traefik_docker_socket_read_only(self):
         """
