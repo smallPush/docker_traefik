@@ -48,7 +48,8 @@ class TestDockerComposeSecurity(unittest.TestCase):
 
     def test_traefik_dashboard_ports_exposed(self):
         """
-        Verify that port 8080 and 22 are exposed for Traefik (backward compatibility).
+        Verify that port 22 is exposed for Traefik (backward compatibility),
+        but port 8080 is NOT exposed (security).
         Uses the cached configuration for improved performance.
         """
         services = self.config.get('services', {})
@@ -56,7 +57,7 @@ class TestDockerComposeSecurity(unittest.TestCase):
         ports = traefik.get('ports', [])
 
         exposed_ports = [str(p.get('published')) for p in ports]
-        self.assertIn("8080", exposed_ports, "Port 8080 should be exposed for backward compatibility")
+        self.assertNotIn("8080", exposed_ports, "Port 8080 should NOT be exposed for security")
         self.assertIn("22", exposed_ports, "Port 22 should be exposed for backward compatibility")
 
 if __name__ == '__main__':
