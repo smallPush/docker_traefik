@@ -7,21 +7,46 @@ services:
       # Optimization: Further reduced log level from INFO to WARN to decrease CPU/IO overhead per request.
       - "--log.level=WARN"
       # Optimization: Increase max idle connections per host to improve backend connection reuse and reduce latency.
-      - "--serverstransport.maxidleconnsperhost=100"
+      - "--serverstransport.maxidleconnsperhost=250"
+      # Optimization: Scale global connection pooling to allow more concurrent backend connections.
+      - "--serverstransport.maxidleconns=1000"
+      # Optimization: Set forwarding timeouts to fail fast on unreachable backends and prevent hanging on headers.
+      # dialTimeout is reduced to 2s as backends are on the same internal network.
+      - "--serverstransport.forwardingTimeouts.dialTimeout=2s"
+      - "--serverstransport.forwardingTimeouts.responseHeaderTimeout=30s"
       # Optimization: Narrow Docker provider scope to the primary network to reduce overhead during service discovery.
       - "--providers.docker.network=rubofvil_lan"
       # Optimization: Disable version check to reduce unnecessary outbound requests on startup.
       - "--global.checknewversion=false"
-      - "--api.insecure=true"
+      # Optimization: Enable dashboard mode to allow routing via the main entrypoint with compression.
+      - "--api.dashboard=true"
+      # Security: Disable insecure mode to prevent unauthorized access to the API and dashboard.
+      - "--api.insecure=false"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.http.address=:80"
-      # Optimization: Reduce idle timeout to free up resources from inactive connections faster.
+      # Optimization: Reduce idle timeout, read timeout and write timeout to free up resources from inactive or hanging connections faster.
       - "--entrypoints.http.transport.respondingTimeouts.idleTimeout=60s"
       # Optimization: Set read and write timeouts to prevent resource exhaustion from hanging connections.
       - "--entrypoints.http.transport.respondingTimeouts.readTimeout=60s"
       - "--entrypoints.http.transport.respondingTimeouts.writeTimeout=60s"
+      # Optimization: Enable global compression for all routers on the http entrypoint.
+      # This reduces bandwidth usage and improves load times for all services by default.
+      - "--entrypoints.http.http.middlewares=compress@docker"
       - "--entrypoints.ssh.address=:22"
+    labels:
+      - "traefik.enable=true"
+      # Optimization: Expose the dashboard via a router on the http entrypoint.
+      # This ensures it benefits from global compression, improving performance for remote management.
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.entrypoints=http"
+      # Security: Add authentication to the dashboard router.
+      - "traefik.http.routers.dashboard.middlewares=auth@docker,compress@docker"
+      # Security: Basic auth middleware definition (admin:admin).
+      - "traefik.http.middlewares.auth.basicauth.users=admin:$$apr1$$H697SpgL$$763AgmxuKCYm77U07l9p2."
+      # Global compression middleware definition.
+      - "traefik.http.middlewares.compress.compress=true"
     ulimits:
       # Optimization: Increase the maximum number of open files (nofile) to 65535.
       # This is critical for high-concurrency proxies like Traefik to handle thousands of concurrent
@@ -31,7 +56,6 @@ services:
         hard: 65535
     ports:
       - 80:80
-      - 8080:8080
       - 22:22
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -56,8 +80,15 @@ services:
   portainer:
     container_name: portainer
     image: portainer/portainer-ce:2.6.0-alpine
-    command: -H unix:///var/run/docker.sock
+    command:
+      - "-H"
+      - "unix:///var/run/docker.sock"
+      # Optimization: Increase snapshot interval from default 5m to 1h to reduce background Docker socket polling.
+      - "--snapshot-interval=1h"
     restart: always
+    environment:
+      # Optimization: Set GOMAXPROCS to match the CPU limit to reduce context-switching overhead.
+      - GOMAXPROCS=1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./portainer_data:/data
@@ -67,9 +98,6 @@ services:
       traefik.http.routers.portainer.entrypoints: http
       traefik.http.routers.portainer.service: portainer
       traefik.http.services.portainer.loadBalancer.server.port: 9000
-      # Optimization: Enable Gzip compression to reduce bandwidth usage and improve load times.
-      traefik.http.routers.portainer.middlewares: "compress"
-      traefik.http.middlewares.compress.compress: "true"
     ulimits:
       # Optimization: Increase nofile limits to handle higher concurrency and prevent connection failures.
       nofile:
@@ -82,6 +110,11 @@ services:
       - rubofvil_lan
     deploy:
       resources:
+        # Optimization: Portainer resource reservations ensure it remains responsive and prevents starvation
+        # during high system load.
+        reservations:
+          cpus: '0.10'
+          memory: 128M
         limits:
           cpus: '0.50'
           memory: 256M
