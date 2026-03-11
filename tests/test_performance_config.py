@@ -106,6 +106,14 @@ class TestDockerComposePerformance(unittest.TestCase):
 
         self.assertIn("--serverstransport.maxidleconnsperhost=250", command)
 
+    def test_traefik_forwarding_timeouts(self):
+        """Verify Traefik forwarding timeouts are set."""
+        traefik = self.config.get('services', {}).get('traefik', {})
+        command = traefik.get('command', [])
+
+        self.assertIn("--serverstransport.forwardingtimeouts.dialtimeout=2s", command)
+        self.assertIn("--serverstransport.forwardingtimeouts.responseheadertimeout=30s", command)
+
     def test_traefik_idle_timeout(self):
         """Verify Traefik idle timeout is optimized."""
         traefik = self.config.get('services', {}).get('traefik', {})

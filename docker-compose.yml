@@ -10,6 +10,10 @@ services:
       - "--serverstransport.maxidleconnsperhost=250"
       # Optimization: Scale global connection pooling to allow more concurrent backend connections.
       - "--serverstransport.maxidleconns=1000"
+      # Optimization: Set forwarding timeouts to fail fast on unresponsive backend services.
+      # This improves resource efficiency and prevents request pile-up.
+      - "--serverstransport.forwardingtimeouts.dialtimeout=2s"
+      - "--serverstransport.forwardingtimeouts.responseheadertimeout=30s"
       # Optimization: Narrow Docker provider scope to the primary network to reduce overhead during service discovery.
       - "--providers.docker.network=rubofvil_lan"
       # Optimization: Disable version check to reduce unnecessary outbound requests on startup.

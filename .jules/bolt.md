@@ -49,3 +49,7 @@
 ## 2026-03-10 - Optimized Test Suite Performance via Configuration Caching
 **Learning:** Repetitive execution of expensive external commands (like `docker compose config`) within a test suite creates a significant and avoidable bottleneck. Caching the parsed configuration at the class level (`setUpClass`) instead of the method level (`setUp`) can yield massive relative performance gains (e.g., ~44% reduction in total execution time).
 **Action:** Always use `setUpClass` to load and parse shared infrastructure configurations in test suites to minimize subprocess overhead.
+
+## 2026-03-11 - Traefik CLI Casing and Forwarding Timeouts
+**Learning:** Traefik CLI flags in the `command` section of `docker-compose.yml` are strictly case-sensitive and must be lowercase (e.g., `--serverstransport.forwardingtimeouts.dialtimeout=2s`). CamelCase flags are unrecognized and will cause the service to fail on startup.
+**Action:** Always use lowercase for Traefik static configuration flags and verify their presence in the `docker compose config` output with corresponding lowercase assertions.
