@@ -99,6 +99,13 @@ class TestDockerComposePerformance(unittest.TestCase):
 
         self.assertIn("--serverstransport.maxidleconns=1000", command)
 
+    def test_portainer_gomaxprocs(self):
+        """Verify Portainer has GOMAXPROCS set."""
+        portainer = self.config.get('services', {}).get('portainer', {})
+        env = portainer.get('environment', {})
+
+        self.assertEqual(env.get('GOMAXPROCS'), "1")
+
     def test_traefik_connection_pooling(self):
         """Verify Traefik connection pooling is tuned."""
         traefik = self.config.get('services', {}).get('traefik', {})

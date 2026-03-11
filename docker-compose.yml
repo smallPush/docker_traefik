@@ -25,7 +25,7 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.http.address=:80"
-      # Optimization: Reduce idle timeout to free up resources from inactive connections faster.
+      # Optimization: Reduce idle timeout, read timeout and write timeout to free up resources from inactive or hanging connections faster.
       - "--entrypoints.http.transport.respondingTimeouts.idleTimeout=60s"
       # Optimization: Set read and write timeouts to prevent resource exhaustion from hanging connections.
       - "--entrypoints.http.transport.respondingTimeouts.readTimeout=60s"
@@ -86,6 +86,9 @@ services:
       # Optimization: Increase snapshot interval from default 5m to 1h to reduce background Docker socket polling.
       - "--snapshot-interval=1h"
     restart: always
+    environment:
+      # Optimization: Set GOMAXPROCS to match the CPU limit to reduce context-switching overhead.
+      - GOMAXPROCS=1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./portainer_data:/data
