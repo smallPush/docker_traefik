@@ -20,8 +20,8 @@ services:
       - "--global.checknewversion=false"
       # Optimization: Enable dashboard mode to allow routing via the main entrypoint with compression.
       - "--api.dashboard=true"
-      # Backward compatibility: Keep insecure mode enabled for existing tools/access on port 8080.
-      - "--api.insecure=true"
+      # Security: Disable insecure mode to prevent unauthorized access to the API and dashboard.
+      - "--api.insecure=false"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.http.address=:80"
@@ -41,6 +41,10 @@ services:
       - "traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)"
       - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.routers.dashboard.entrypoints=http"
+      # Security: Add authentication to the dashboard router.
+      - "traefik.http.routers.dashboard.middlewares=auth@docker,compress@docker"
+      # Security: Basic auth middleware definition (admin:admin).
+      - "traefik.http.middlewares.auth.basicauth.users=admin:$$apr1$$H697SpgL$$763AgmxuKCYm77U07l9p2."
       # Global compression middleware definition.
       - "traefik.http.middlewares.compress.compress=true"
     ulimits:
@@ -52,7 +56,6 @@ services:
         hard: 65535
     ports:
       - 80:80
-      - 8080:8080
       - 22:22
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro

@@ -69,7 +69,7 @@ class TestDockerComposePerformance(unittest.TestCase):
         command = traefik.get('command', [])
 
         self.assertIn("--api.dashboard=true", command)
-        self.assertIn("--api.insecure=true", command)
+        self.assertIn("--api.insecure=false", command)
 
     def test_traefik_ssh_entrypoint(self):
         """Verify Traefik SSH entrypoint is present."""
