@@ -1,7 +1,6 @@
 import unittest
 import json
 import subprocess
-import os
 
 class TestDockerComposeSecurity(unittest.TestCase):
     @classmethod
