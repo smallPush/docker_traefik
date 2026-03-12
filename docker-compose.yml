@@ -108,6 +108,9 @@ services:
       - GOMAXPROCS=1
     networks:
       - rubofvil_lan
+    environment:
+      # Optimization: Set GOMAXPROCS to match the CPU limit to reduce context-switching overhead.
+      - GOMAXPROCS=1
     deploy:
       resources:
         # Optimization: Portainer resource reservations ensure it remains responsive and prevents starvation
