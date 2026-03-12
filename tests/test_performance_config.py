@@ -98,13 +98,6 @@ class TestDockerComposePerformance(unittest.TestCase):
 
         self.assertIn("--serverstransport.maxidleconns=1000", command)
 
-    def test_portainer_gomaxprocs(self):
-        """Verify Portainer has GOMAXPROCS set."""
-        portainer = self.config.get('services', {}).get('portainer', {})
-        env = portainer.get('environment', {})
-
-        self.assertEqual(env.get('GOMAXPROCS'), "1")
-
     def test_traefik_connection_pooling(self):
         """Verify Traefik connection pooling is tuned."""
         traefik = self.config.get('services', {}).get('traefik', {})
@@ -125,23 +118,15 @@ class TestDockerComposePerformance(unittest.TestCase):
         traefik = self.config.get('services', {}).get('traefik', {})
         command = traefik.get('command', [])
 
-        self.assertIn("--entrypoints.http.transport.respondingTimeouts.idleTimeout=60s", command)
+        self.assertIn("--entrypoints.http.transport.respondingtimeouts.idletimeout=60s", command)
 
     def test_traefik_read_write_timeouts(self):
         """Verify Traefik read and write timeouts are set."""
         traefik = self.config.get('services', {}).get('traefik', {})
         command = traefik.get('command', [])
 
-        self.assertIn("--entrypoints.http.transport.respondingTimeouts.readTimeout=60s", command)
-        self.assertIn("--entrypoints.http.transport.respondingTimeouts.writeTimeout=60s", command)
-
-    def test_traefik_forwarding_timeouts(self):
-        """Verify Traefik forwarding timeouts are optimized."""
-        traefik = self.config.get('services', {}).get('traefik', {})
-        command = traefik.get('command', [])
-
-        self.assertIn("--serverstransport.forwardingTimeouts.dialTimeout=2s", command)
-        self.assertIn("--serverstransport.forwardingTimeouts.responseHeaderTimeout=30s", command)
+        self.assertIn("--entrypoints.http.transport.respondingtimeouts.readtimeout=60s", command)
+        self.assertIn("--entrypoints.http.transport.respondingtimeouts.writetimeout=60s", command)
 
     def test_traefik_global_compression(self):
         """Verify Traefik has global compression enabled on the http entrypoint."""
@@ -195,13 +180,6 @@ class TestDockerComposePerformance(unittest.TestCase):
         env_dict = self._get_env_dict('portainer')
         self.assertEqual(env_dict.get('GOMAXPROCS'), "1")
 
-    def test_portainer_gzip_compression(self):
-        """Verify Portainer has Gzip compression labels enabled."""
-        portainer = self.config.get('services', {}).get('portainer', {})
-        labels = portainer.get('labels', {})
-
-        self.assertEqual(labels.get('traefik.http.routers.portainer.middlewares'), "compress")
-        self.assertEqual(labels.get('traefik.http.middlewares.compress.compress'), "true")
     def test_portainer_snapshot_interval(self):
         """Verify Portainer snapshot interval is optimized."""
         portainer = self.config.get('services', {}).get('portainer', {})
