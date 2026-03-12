@@ -2,7 +2,7 @@ services:
   traefik:
     container_name: traefik
     image: traefik:v3.6
-    restart: always
+    restart: unless-stopped
     command:
       # Optimization: Further reduced log level from INFO to WARN to decrease CPU/IO overhead per request.
       - "--log.level=WARN"
@@ -11,9 +11,9 @@ services:
       # Optimization: Scale global connection pooling to allow more concurrent backend connections.
       - "--serverstransport.maxidleconns=1000"
       # Optimization: Set forwarding timeouts to fail fast on unreachable backends and prevent hanging on headers.
-      # dialTimeout is reduced to 2s as backends are on the same internal network.
-      - "--serverstransport.forwardingTimeouts.dialTimeout=2s"
-      - "--serverstransport.forwardingTimeouts.responseHeaderTimeout=30s"
+      # dialtimeout is reduced to 2s as backends are on the same internal network.
+      - "--serverstransport.forwardingtimeouts.dialtimeout=2s"
+      - "--serverstransport.forwardingtimeouts.responseheadertimeout=30s"
       # Optimization: Narrow Docker provider scope to the primary network to reduce overhead during service discovery.
       - "--providers.docker.network=rubofvil_lan"
       # Optimization: Disable version check to reduce unnecessary outbound requests on startup.
@@ -26,10 +26,10 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.http.address=:80"
       # Optimization: Reduce idle timeout, read timeout and write timeout to free up resources from inactive or hanging connections faster.
-      - "--entrypoints.http.transport.respondingTimeouts.idleTimeout=60s"
+      - "--entrypoints.http.transport.respondingtimeouts.idletimeout=60s"
       # Optimization: Set read and write timeouts to prevent resource exhaustion from hanging connections.
-      - "--entrypoints.http.transport.respondingTimeouts.readTimeout=60s"
-      - "--entrypoints.http.transport.respondingTimeouts.writeTimeout=60s"
+      - "--entrypoints.http.transport.respondingtimeouts.readtimeout=60s"
+      - "--entrypoints.http.transport.respondingtimeouts.writetimeout=60s"
       # Optimization: Enable global compression for all routers on the http entrypoint.
       # This reduces bandwidth usage and improves load times for all services by default.
       - "--entrypoints.http.http.middlewares=compress@docker"
@@ -85,10 +85,7 @@ services:
       - "unix:///var/run/docker.sock"
       # Optimization: Increase snapshot interval from default 5m to 1h to reduce background Docker socket polling.
       - "--snapshot-interval=1h"
-    restart: always
-    environment:
-      # Optimization: Set GOMAXPROCS to match the CPU limit to reduce context-switching overhead.
-      - GOMAXPROCS=1
+    restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./portainer_data:/data
