@@ -65,3 +65,7 @@
 ## 2026-03-11 - Optimized Traefik Forwarding Timeouts
 **Learning:** Default forwarding timeouts in Traefik can be too high for internal Docker networks. Reducing `dialTimeout` to 2s and setting `responseHeaderTimeout` to 30s allows the proxy to fail fast and release resources when a backend is unreachable or slow, preventing resource exhaustion during backend failure scenarios. However, applying similar aggressive responding timeouts to SSH entrypoints is a breaking change for long-lived sessions.
 **Action:** Tune `serverstransport` forwarding timeouts for fast failure on internal networks, but avoid aggressive responding timeouts on entrypoints used for persistent connections like SSH.
+
+## 2026-03-12 - Optimized Go GC and Configuration Hygiene
+**Learning:** Tuning Go's garbage collector via `GOGC=200` reduces CPU cycles spent on GC by allowing the heap to grow larger before triggering a collection; this is safe to use in memory-constrained containers when paired with `GOMEMLIMIT`. Additionally, duplicate keys in `docker-compose.yml` (e.g., redundant `environment` blocks) will cause unmarshal errors in `docker compose config`. Finally, maintaining a clean test suite by avoiding duplicate test method names ensures all assertions are executed.
+**Action:** Use `GOGC` to balance CPU/Memory for Go services, and always verify configuration validity and test coverage before submission.
