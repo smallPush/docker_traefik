@@ -76,6 +76,9 @@ services:
       - GOMAXPROCS=1
       # Optimization: Set GOMEMLIMIT to 90% of the memory limit to optimize GC and prevent OOM kills.
       - GOMEMLIMIT=460MiB
+      # Optimization: Set GOGC to 200 to reduce GC frequency and CPU overhead when memory is available.
+      # GOMEMLIMIT provides a safety net to prevent OOM.
+      - GOGC=200
 
   portainer:
     container_name: portainer
@@ -89,9 +92,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./portainer_data:/data
-    environment:
-      # Optimization: Set GOMAXPROCS to 1 to match the CPU limit and reduce context-switching.
-      - GOMAXPROCS=1
     labels:
       traefik.enable: true
       traefik.http.routers.portainer.rule: Host(`portainer.localhost`)
@@ -103,13 +103,10 @@ services:
       nofile:
         soft: 65535
         hard: 65535
-    environment:
-      # Optimization: Set GOMAXPROCS to 1 to match the CPU limit (0.50) and improve Go runtime efficiency.
-      - GOMAXPROCS=1
     networks:
       - rubofvil_lan
     environment:
-      # Optimization: Set GOMAXPROCS to match the CPU limit to reduce context-switching overhead.
+      # Optimization: Set GOMAXPROCS to match the CPU limit (0.50) to reduce context-switching overhead and improve Go runtime efficiency.
       - GOMAXPROCS=1
     deploy:
       resources:

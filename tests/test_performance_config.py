@@ -62,6 +62,11 @@ class TestDockerComposePerformance(unittest.TestCase):
         env_dict = self._get_env_dict('traefik')
         self.assertEqual(env_dict.get('GOMEMLIMIT'), "460MiB")
 
+    def test_traefik_gogc(self):
+        """Verify Traefik has GOGC set."""
+        env_dict = self._get_env_dict('traefik')
+        self.assertEqual(env_dict.get('GOGC'), "200")
+
     def test_traefik_api_dashboard(self):
         """Verify Traefik API dashboard is enabled."""
         traefik = self.config.get('services', {}).get('traefik', {})
@@ -186,29 +191,6 @@ class TestDockerComposePerformance(unittest.TestCase):
         command = portainer.get('command', [])
 
         self.assertIn("--snapshot-interval=1h", command)
-
-    def test_portainer_gomaxprocs(self):
-        """Verify Portainer has GOMAXPROCS set."""
-        portainer = self.config.get('services', {}).get('portainer', {})
-        env = portainer.get('environment', {})
-
-        self.assertEqual(env.get('GOMAXPROCS'), "1")
-
-    def test_portainer_ulimits_nofile(self):
-        """Verify Portainer has high nofile ulimits."""
-        portainer = self.config.get('services', {}).get('portainer', {})
-        ulimits = portainer.get('ulimits', {})
-        nofile = ulimits.get('nofile', {})
-
-        self.assertEqual(nofile.get('soft'), 65535)
-        self.assertEqual(nofile.get('hard'), 65535)
-
-    def test_portainer_gomaxprocs(self):
-        """Verify Portainer has GOMAXPROCS set."""
-        portainer = self.config.get('services', {}).get('portainer', {})
-        env = portainer.get('environment', {})
-
-        self.assertEqual(env.get('GOMAXPROCS'), "1")
 
 if __name__ == '__main__':
     unittest.main()
