@@ -108,6 +108,8 @@ services:
     environment:
       # Optimization: Set GOMAXPROCS to match the CPU limit (0.50) to reduce context-switching overhead and improve Go runtime efficiency.
       - GOMAXPROCS=1
+      # Optimization: Set GOGC to 200 to reduce CPU cycles spent on garbage collection by allowing the heap to grow larger before triggering a collection.
+      - GOGC=200
     deploy:
       resources:
         # Optimization: Portainer resource reservations ensure it remains responsive and prevents starvation
