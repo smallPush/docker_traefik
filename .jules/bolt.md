@@ -73,3 +73,7 @@
 ## 2026-03-12 - Optimized Go GC and Configuration Hygiene
 **Learning:** Tuning Go's garbage collector via `GOGC=200` reduces CPU cycles spent on GC by allowing the heap to grow larger before triggering a collection; this is safe to use in memory-constrained containers when paired with `GOMEMLIMIT`. Additionally, duplicate keys in `docker-compose.yml` (e.g., redundant `environment` blocks) will cause unmarshal errors in `docker compose config`. Finally, maintaining a clean test suite by avoiding duplicate test method names ensures all assertions are executed.
 **Action:** Use `GOGC` to balance CPU/Memory for Go services, and always verify configuration validity and test coverage before submission.
+
+## 2026-03-14 - Middleware Redundancy and Config Validation
+**Learning:** Applying a middleware globally at the entrypoint level (e.g., `--entrypoints.http.http.middlewares=compress@docker`) renders explicit middleware labels on individual routers redundant. Removing these duplicates streamlines the middleware chain. Furthermore, be cautious with "advanced" middleware properties like `compress.encodings` which may be specific to Traefik Enterprise or Hub and invalid in Traefik Proxy OSS.
+**Action:** Remove redundant middleware declarations when global equivalents are in place, and always verify new middleware properties against the specific Traefik version's documentation.
