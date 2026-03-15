@@ -83,7 +83,7 @@ class TestDockerComposePerformance(unittest.TestCase):
         self.assertIn("--entrypoints.ssh.address=:22", command)
 
     def test_traefik_dashboard_router(self):
-        """Verify Traefik dashboard router is configured."""
+        """Verify Traefik dashboard router is configured with optimized middleware chain."""
         traefik = self.config.get('services', {}).get('traefik', {})
         labels = traefik.get('labels', {})
 
@@ -91,10 +91,12 @@ class TestDockerComposePerformance(unittest.TestCase):
             self.assertIn("traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)", labels)
             self.assertIn("traefik.http.routers.dashboard.service=api@internal", labels)
             self.assertIn("traefik.http.routers.dashboard.entrypoints=http", labels)
+            self.assertIn("traefik.http.routers.dashboard.middlewares=auth@docker", labels)
         else:
             self.assertEqual(labels.get("traefik.http.routers.dashboard.rule"), "Host(`traefik.localhost`)")
             self.assertEqual(labels.get("traefik.http.routers.dashboard.service"), "api@internal")
             self.assertEqual(labels.get("traefik.http.routers.dashboard.entrypoints"), "http")
+            self.assertEqual(labels.get("traefik.http.routers.dashboard.middlewares"), "auth@docker")
 
     def test_traefik_max_idle_conns(self):
         """Verify Traefik global connection pooling is scaled."""
