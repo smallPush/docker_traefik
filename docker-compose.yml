@@ -18,6 +18,8 @@ services:
       - "--providers.docker.network=rubofvil_lan"
       # Optimization: Disable version check to reduce unnecessary outbound requests on startup.
       - "--global.checknewversion=false"
+      # Optimization: Disable anonymous usage statistics to reduce unnecessary outbound network requests and minor processing overhead.
+      - "--global.sendanonymoususage=false"
       # Optimization: Enable dashboard mode to allow routing via the main entrypoint with compression.
       - "--api.dashboard=true"
       # Security: Disable insecure mode to prevent unauthorized access to the API and dashboard.

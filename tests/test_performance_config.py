@@ -75,6 +75,13 @@ class TestDockerComposePerformance(unittest.TestCase):
         self.assertIn("--api.dashboard=true", command)
         self.assertIn("--api.insecure=false", command)
 
+    def test_traefik_send_anonymous_usage(self):
+        """Verify Traefik anonymous usage statistics are disabled."""
+        traefik = self.config.get('services', {}).get('traefik', {})
+        command = traefik.get('command', [])
+
+        self.assertIn("--global.sendanonymoususage=false", command)
+
     def test_traefik_ssh_entrypoint(self):
         """Verify Traefik SSH entrypoint is present."""
         traefik = self.config.get('services', {}).get('traefik', {})
