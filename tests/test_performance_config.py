@@ -110,21 +110,21 @@ class TestDockerComposePerformance(unittest.TestCase):
         traefik = self.config.get('services', {}).get('traefik', {})
         command = traefik.get('command', [])
 
-        self.assertIn("--serverstransport.maxidleconns=1000", command)
+        self.assertIn("--serverstransport.maxidleconns=2000", command)
 
     def test_traefik_connection_pooling(self):
         """Verify Traefik connection pooling is tuned."""
         traefik = self.config.get('services', {}).get('traefik', {})
         command = traefik.get('command', [])
 
-        self.assertIn("--serverstransport.maxidleconnsperhost=250", command)
+        self.assertIn("--serverstransport.maxidleconnsperhost=500", command)
 
     def test_traefik_forwarding_timeouts(self):
         """Verify Traefik forwarding timeouts are set."""
         traefik = self.config.get('services', {}).get('traefik', {})
         command = traefik.get('command', [])
 
-        self.assertIn("--serverstransport.forwardingtimeouts.dialtimeout=2s", command)
+        self.assertIn("--serverstransport.forwardingtimeouts.dialtimeout=1s", command)
         self.assertIn("--serverstransport.forwardingtimeouts.responseheadertimeout=30s", command)
 
     def test_traefik_idle_timeout(self):
@@ -132,15 +132,15 @@ class TestDockerComposePerformance(unittest.TestCase):
         traefik = self.config.get('services', {}).get('traefik', {})
         command = traefik.get('command', [])
 
-        self.assertIn("--entrypoints.http.transport.respondingtimeouts.idletimeout=60s", command)
+        self.assertIn("--entrypoints.http.transport.respondingtimeouts.idletimeout=30s", command)
 
     def test_traefik_read_write_timeouts(self):
         """Verify Traefik read and write timeouts are set."""
         traefik = self.config.get('services', {}).get('traefik', {})
         command = traefik.get('command', [])
 
-        self.assertIn("--entrypoints.http.transport.respondingtimeouts.readtimeout=60s", command)
-        self.assertIn("--entrypoints.http.transport.respondingtimeouts.writetimeout=60s", command)
+        self.assertIn("--entrypoints.http.transport.respondingtimeouts.readtimeout=30s", command)
+        self.assertIn("--entrypoints.http.transport.respondingtimeouts.writetimeout=30s", command)
 
     def test_traefik_global_compression(self):
         """Verify Traefik has global compression enabled on the http entrypoint."""

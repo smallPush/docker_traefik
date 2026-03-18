@@ -6,13 +6,13 @@ services:
     command:
       # Optimization: Further reduced log level from INFO to WARN to decrease CPU/IO overhead per request.
       - "--log.level=WARN"
-      # Optimization: Increase max idle connections per host to improve backend connection reuse and reduce latency.
-      - "--serverstransport.maxidleconnsperhost=250"
-      # Optimization: Scale global connection pooling to allow more concurrent backend connections.
-      - "--serverstransport.maxidleconns=1000"
+      # Optimization: Further increase max idle connections per host to 500 to maximize backend connection reuse.
+      - "--serverstransport.maxidleconnsperhost=500"
+      # Optimization: Scale global connection pooling to 2000 to allow more concurrent backend connections.
+      - "--serverstransport.maxidleconns=2000"
       # Optimization: Set forwarding timeouts to fail fast on unreachable backends and prevent hanging on headers.
-      # dialtimeout is reduced to 2s as backends are on the same internal network.
-      - "--serverstransport.forwardingtimeouts.dialtimeout=2s"
+      # dialtimeout is reduced to 1s as backends are on the same internal network.
+      - "--serverstransport.forwardingtimeouts.dialtimeout=1s"
       - "--serverstransport.forwardingtimeouts.responseheadertimeout=30s"
       # Optimization: Narrow Docker provider scope to the primary network to reduce overhead during service discovery.
       - "--providers.docker.network=rubofvil_lan"
@@ -27,11 +27,11 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.http.address=:80"
-      # Optimization: Reduce idle timeout, read timeout and write timeout to free up resources from inactive or hanging connections faster.
-      - "--entrypoints.http.transport.respondingtimeouts.idletimeout=60s"
-      # Optimization: Set read and write timeouts to prevent resource exhaustion from hanging connections.
-      - "--entrypoints.http.transport.respondingtimeouts.readtimeout=60s"
-      - "--entrypoints.http.transport.respondingtimeouts.writetimeout=60s"
+      # Optimization: Further reduce idle timeout, read timeout and write timeout to 30s to reclaim resources faster.
+      - "--entrypoints.http.transport.respondingtimeouts.idletimeout=30s"
+      # Optimization: Set read and write timeouts to 30s to prevent resource exhaustion from hanging connections.
+      - "--entrypoints.http.transport.respondingtimeouts.readtimeout=30s"
+      - "--entrypoints.http.transport.respondingtimeouts.writetimeout=30s"
       # Optimization: Enable global compression for all routers on the http entrypoint.
       # This reduces bandwidth usage and improves load times for all services by default.
       - "--entrypoints.http.http.middlewares=compress@docker"
