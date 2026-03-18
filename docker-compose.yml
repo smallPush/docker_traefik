@@ -16,7 +16,7 @@ services:
       - "--serverstransport.forwardingtimeouts.responseheadertimeout=30s"
       # Optimization: Narrow Docker provider scope to the primary network to reduce overhead during service discovery.
       - "--providers.docker.network=rubofvil_lan"
-      # Optimization: Disable version check to reduce unnecessary outbound requests on startup.
+      # Optimization: Disable version check and anonymous usage statistics to reduce unnecessary outbound requests on startup.
       - "--global.checknewversion=false"
       # Optimization: Disable anonymous usage statistics to reduce unnecessary outbound network requests and minor processing overhead.
       - "--global.sendanonymoususage=false"

@@ -77,3 +77,7 @@
 ## 2026-03-14 - Middleware Redundancy and Config Validation
 **Learning:** Applying a middleware globally at the entrypoint level (e.g., `--entrypoints.http.http.middlewares=compress@docker`) renders explicit middleware labels on individual routers redundant. Removing these duplicates streamlines the middleware chain. Furthermore, be cautious with "advanced" middleware properties like `compress.encodings` which may be specific to Traefik Enterprise or Hub and invalid in Traefik Proxy OSS.
 **Action:** Remove redundant middleware declarations when global equivalents are in place, and always verify new middleware properties against the specific Traefik version's documentation.
+
+## 2026-03-15 - Optimized Traefik Outbound Efficiency
+**Learning:** Disabling Traefik's anonymous usage statistics via `--global.sendanonymoususage=false` reduces unnecessary outbound network requests and minor background processing overhead. While the resource gain is small, it ensures the application remains focused on routing and minimizes external noise.
+**Action:** Always disable anonymous telemetry in production environments to maximize efficiency and privacy.
