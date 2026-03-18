@@ -46,8 +46,8 @@ services:
       # Security: Add authentication to the dashboard router.
       # Optimization: Redundant 'compress@docker' removed as it is already applied globally at the entrypoint level.
       - "traefik.http.routers.dashboard.middlewares=auth@docker"
-      # Security: Basic auth middleware definition (admin:admin).
-      - "traefik.http.middlewares.auth.basicauth.users=admin:$$apr1$$H697SpgL$$763AgmxuKCYm77U07l9p2."
+      # Security: Basic auth middleware definition.
+      - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_DASHBOARD_AUTH}"
       # Global compression middleware definition.
       - "traefik.http.middlewares.compress.compress=true"
     ulimits:
