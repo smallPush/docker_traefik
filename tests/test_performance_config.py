@@ -8,6 +8,7 @@ class TestDockerComposePerformance(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.config = get_docker_compose_config()
+        cls._env_cache = {}
 
     def test_traefik_ulimits_nofile(self):
         """Verify Traefik has high nofile ulimits."""
@@ -46,11 +47,18 @@ class TestDockerComposePerformance(unittest.TestCase):
         self.assertIn("--log.level=WARN", command)
 
     def _get_env_dict(self, service_name):
-        """Normalize environment to a dictionary regardless of its format."""
+        """Normalize environment to a dictionary regardless of its format with class-level caching."""
+        if service_name in self.__class__._env_cache:
+            return self.__class__._env_cache[service_name]
+
         env = self.config.get('services', {}).get(service_name, {}).get('environment', {})
         if isinstance(env, list):
-            return dict(item.split('=', 1) for item in env)
-        return env
+            env_dict = dict(item.split('=', 1) for item in env)
+        else:
+            env_dict = env
+
+        self.__class__._env_cache[service_name] = env_dict
+        return env_dict
 
     def test_traefik_gomaxprocs(self):
         """Verify Traefik has GOMAXPROCS set."""
