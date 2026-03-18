@@ -48,5 +48,22 @@ class TestDockerComposeSecurity(unittest.TestCase):
         self.assertNotIn("8080", exposed_ports, "Port 8080 should NOT be exposed for security")
         self.assertIn("22", exposed_ports, "Port 22 should be exposed for backward compatibility")
 
+    def test_traefik_dashboard_auth_not_hardcoded(self):
+        """
+        Verify that the Traefik dashboard authentication credentials are not hardcoded
+        in the docker-compose.yml file and instead use the TRAEFIK_DASHBOARD_AUTH
+        environment variable.
+        """
+        with open('docker-compose.yml', 'r') as f:
+            content = f.read()
+
+        # Check for the specific label and ensure it uses the environment variable placeholder.
+        # This checks the source file directly, as 'docker compose config' would interpolate it.
+        self.assertIn('traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_DASHBOARD_AUTH}', content,
+                      "Traefik dashboard credentials must be referenced via the ${TRAEFIK_DASHBOARD_AUTH} variable")
+
+        # Also ensure the plain-text password comment (admin:admin) is gone.
+        self.assertNotIn('admin:admin', content, "Plain-text credential comments must be removed")
+
 if __name__ == '__main__':
     unittest.main()
