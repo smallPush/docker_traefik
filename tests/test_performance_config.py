@@ -9,21 +9,28 @@ class TestDockerComposePerformance(unittest.TestCase):
     def setUpClass(cls):
         cls.config = get_docker_compose_config()
         services = cls.config.get('services', {})
+
         cls.traefik = services.get('traefik', {})
+        cls.traefik_command = cls.traefik.get('command', [])
+        cls.traefik_deploy = cls.traefik.get('deploy', {})
+        cls.traefik_labels = cls.traefik.get('labels', {})
+        cls.traefik_ulimits = cls.traefik.get('ulimits', {})
+
         cls.portainer = services.get('portainer', {})
+        cls.portainer_command = cls.portainer.get('command', [])
+        cls.portainer_deploy = cls.portainer.get('deploy', {})
+        cls.portainer_ulimits = cls.portainer.get('ulimits', {})
 
     def test_traefik_ulimits_nofile(self):
         """Verify Traefik has high nofile ulimits."""
-        ulimits = self.traefik.get('ulimits', {})
-        nofile = ulimits.get('nofile', {})
+        nofile = self.traefik_ulimits.get('nofile', {})
 
         self.assertEqual(nofile.get('soft'), 65535)
         self.assertEqual(nofile.get('hard'), 65535)
 
     def test_traefik_resource_limits(self):
         """Verify Traefik has resource limits defined."""
-        deploy = self.traefik.get('deploy', {})
-        resources = deploy.get('resources', {})
+        resources = self.traefik_deploy.get('resources', {})
         limits = resources.get('limits', {})
 
         self.assertEqual(limits.get('cpus'), 0.75)
@@ -31,8 +38,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_resource_reservations(self):
         """Verify Traefik has resource reservations defined."""
-        deploy = self.traefik.get('deploy', {})
-        resources = deploy.get('resources', {})
+        resources = self.traefik_deploy.get('resources', {})
         reservations = resources.get('reservations', {})
 
         self.assertEqual(reservations.get('cpus'), 0.25)
@@ -40,9 +46,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_log_level(self):
         """Verify Traefik log level is set to WARN."""
-        command = self.traefik.get('command', [])
-
-        self.assertIn("--log.level=WARN", command)
+        self.assertIn("--log.level=WARN", self.traefik_command)
 
     def _get_env_dict(self, service_config):
         """Normalize environment to a dictionary regardless of its format."""
@@ -68,26 +72,20 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_api_dashboard(self):
         """Verify Traefik API dashboard is enabled."""
-        command = self.traefik.get('command', [])
-
-        self.assertIn("--api.dashboard=true", command)
-        self.assertIn("--api.insecure=false", command)
+        self.assertIn("--api.dashboard=true", self.traefik_command)
+        self.assertIn("--api.insecure=false", self.traefik_command)
 
     def test_traefik_send_anonymous_usage(self):
         """Verify Traefik anonymous usage statistics are disabled."""
-        command = self.traefik.get('command', [])
-
-        self.assertIn("--global.sendanonymoususage=false", command)
+        self.assertIn("--global.sendanonymoususage=false", self.traefik_command)
 
     def test_traefik_ssh_entrypoint(self):
         """Verify Traefik SSH entrypoint is present."""
-        command = self.traefik.get('command', [])
-
-        self.assertIn("--entrypoints.ssh.address=:22", command)
+        self.assertIn("--entrypoints.ssh.address=:22", self.traefik_command)
 
     def test_traefik_dashboard_router(self):
         """Verify Traefik dashboard router is configured with optimized middleware chain."""
-        labels = self.traefik.get('labels', {})
+        labels = self.traefik_labels
 
         if isinstance(labels, list):
             self.assertIn("traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)", labels)
@@ -102,45 +100,33 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_max_idle_conns(self):
         """Verify Traefik global connection pooling is scaled."""
-        command = self.traefik.get('command', [])
-
-        self.assertIn("--serverstransport.maxidleconns=2000", command)
+        self.assertIn("--serverstransport.maxidleconns=2000", self.traefik_command)
 
     def test_traefik_connection_pooling(self):
         """Verify Traefik connection pooling is tuned."""
-        command = self.traefik.get('command', [])
-
-        self.assertIn("--serverstransport.maxidleconnsperhost=500", command)
+        self.assertIn("--serverstransport.maxidleconnsperhost=500", self.traefik_command)
 
     def test_traefik_forwarding_timeouts(self):
         """Verify Traefik forwarding timeouts are set."""
-        command = self.traefik.get('command', [])
-
-        self.assertIn("--serverstransport.forwardingtimeouts.dialtimeout=1s", command)
-        self.assertIn("--serverstransport.forwardingtimeouts.responseheadertimeout=30s", command)
+        self.assertIn("--serverstransport.forwardingtimeouts.dialtimeout=1s", self.traefik_command)
+        self.assertIn("--serverstransport.forwardingtimeouts.responseheadertimeout=30s", self.traefik_command)
 
     def test_traefik_idle_timeout(self):
         """Verify Traefik idle timeout is optimized."""
-        command = self.traefik.get('command', [])
-
-        self.assertIn("--entrypoints.http.transport.respondingtimeouts.idletimeout=30s", command)
+        self.assertIn("--entrypoints.http.transport.respondingtimeouts.idletimeout=30s", self.traefik_command)
 
     def test_traefik_read_write_timeouts(self):
         """Verify Traefik read and write timeouts are set."""
-        command = self.traefik.get('command', [])
-
-        self.assertIn("--entrypoints.http.transport.respondingtimeouts.readtimeout=30s", command)
-        self.assertIn("--entrypoints.http.transport.respondingtimeouts.writetimeout=30s", command)
+        self.assertIn("--entrypoints.http.transport.respondingtimeouts.readtimeout=30s", self.traefik_command)
+        self.assertIn("--entrypoints.http.transport.respondingtimeouts.writetimeout=30s", self.traefik_command)
 
     def test_traefik_global_compression(self):
         """Verify Traefik has global compression enabled on the http entrypoint."""
-        command = self.traefik.get('command', [])
-
-        self.assertIn("--entrypoints.http.http.middlewares=compress@docker", command)
+        self.assertIn("--entrypoints.http.http.middlewares=compress@docker", self.traefik_command)
 
     def test_traefik_compress_middleware_definition(self):
         """Verify Traefik has the compress middleware defined."""
-        labels = self.traefik.get('labels', {})
+        labels = self.traefik_labels
 
         # Labels can be a list or a dict in the normalized JSON
         if isinstance(labels, list):
@@ -150,16 +136,14 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_portainer_ulimits_nofile(self):
         """Verify Portainer has high nofile ulimits."""
-        ulimits = self.portainer.get('ulimits', {})
-        nofile = ulimits.get('nofile', {})
+        nofile = self.portainer_ulimits.get('nofile', {})
 
         self.assertEqual(nofile.get('soft'), 65535)
         self.assertEqual(nofile.get('hard'), 65535)
 
     def test_portainer_resource_limits(self):
         """Verify Portainer has resource limits defined."""
-        deploy = self.portainer.get('deploy', {})
-        resources = deploy.get('resources', {})
+        resources = self.portainer_deploy.get('resources', {})
         limits = resources.get('limits', {})
 
         self.assertEqual(limits.get('cpus'), 0.5)
@@ -167,8 +151,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_portainer_resource_reservations(self):
         """Verify Portainer has resource reservations defined."""
-        deploy = self.portainer.get('deploy', {})
-        resources = deploy.get('resources', {})
+        resources = self.portainer_deploy.get('resources', {})
         reservations = resources.get('reservations', {})
 
         self.assertEqual(reservations.get('cpus'), 0.1)
@@ -186,9 +169,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_portainer_snapshot_interval(self):
         """Verify Portainer snapshot interval is optimized."""
-        command = self.portainer.get('command', [])
-
-        self.assertIn("--snapshot-interval=1h", command)
+        self.assertIn("--snapshot-interval=1h", self.portainer_command)
 
 if __name__ == '__main__':
     unittest.main()
