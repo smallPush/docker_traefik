@@ -81,3 +81,7 @@
 ## 2026-03-15 - Optimized Traefik Outbound Efficiency
 **Learning:** Disabling Traefik's anonymous usage statistics via `--global.sendanonymoususage=false` reduces unnecessary outbound network requests and minor background processing overhead. While the resource gain is small, it ensures the application remains focused on routing and minimizes external noise.
 **Action:** Always disable anonymous telemetry in production environments to maximize efficiency and privacy.
+
+## 2026-03-16 - Optimized Portainer Outbound Efficiency
+**Learning:** Similar to Traefik, Portainer CE sends anonymous usage statistics by default. Disabling this via the `--no-analytics` flag eliminates unnecessary outbound telemetry requests and reduces background processing cycles, further streamlining the management stack.
+**Action:** Consistently disable telemetry across all infrastructure components (Traefik, Portainer, etc.) to minimize non-functional overhead.

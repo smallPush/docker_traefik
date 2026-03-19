@@ -91,6 +91,8 @@ services:
       - "unix:///var/run/docker.sock"
       # Optimization: Increase snapshot interval from default 5m to 1h to reduce background Docker socket polling.
       - "--snapshot-interval=1h"
+      # Optimization: Disable anonymous usage statistics to reduce unnecessary outbound network requests and background processing.
+      - "--no-analytics"
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
