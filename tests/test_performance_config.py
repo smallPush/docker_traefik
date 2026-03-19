@@ -190,5 +190,11 @@ class TestDockerComposePerformance(unittest.TestCase):
 
         self.assertIn("--snapshot-interval=1h", command)
 
+    def test_portainer_analytics_disabled(self):
+        """Verify Portainer anonymous usage statistics are disabled."""
+        command = self.portainer.get('command', [])
+
+        self.assertIn("--no-analytics", command)
+
 if __name__ == '__main__':
     unittest.main()
