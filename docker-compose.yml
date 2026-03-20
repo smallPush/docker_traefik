@@ -26,6 +26,8 @@ services:
       - "--api.insecure=false"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
+      # Optimization: Allow empty services to prevent full configuration reloads when all containers of a service are temporarily down.
+      - "--providers.docker.allowEmptyServices=true"
       - "--entrypoints.http.address=:80"
       # Optimization: Further reduce idle timeout, read timeout and write timeout to 30s to reclaim resources faster.
       - "--entrypoints.http.transport.respondingtimeouts.idletimeout=30s"

@@ -15,6 +15,10 @@ class TestConfigUtils(unittest.TestCase):
         # Reset the global cached config before each test
         config_utils._cached_config = None
 
+    def tearDown(self):
+        # Reset the global cached config after each test to prevent cache pollution
+        config_utils._cached_config = None
+
     @patch('subprocess.run')
     def test_get_docker_compose_config_success(self, mock_run):
         """Test successful loading and parsing of docker compose config."""
