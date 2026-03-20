@@ -67,8 +67,9 @@ class TestConfigUtils(unittest.TestCase):
     @patch('subprocess.run')
     def test_get_docker_compose_config_json_decode_error(self, mock_run):
         """Test that JSONDecodeError raises SkipTest."""
+        # mock_result setup directly mimics a situation where subprocess outputs invalid json
         mock_result = MagicMock()
-        mock_result.stdout = "Invalid JSON"
+        mock_result.stdout = "{"
         mock_run.return_value = mock_result
 
         with self.assertRaises(unittest.SkipTest) as context:
