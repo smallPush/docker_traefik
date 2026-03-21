@@ -79,6 +79,10 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Verify Traefik anonymous usage statistics are disabled."""
         self.assertIn("--global.sendanonymoususage=false", self.traefik_command)
 
+    def test_traefik_allow_empty_services(self):
+        """Verify Traefik allowEmptyServices optimization is enabled."""
+        self.assertIn("--providers.docker.allowEmptyServices=true", self.traefik_command)
+
     def test_traefik_ssh_entrypoint(self):
         """Verify Traefik SSH entrypoint is present."""
         self.assertIn("--entrypoints.ssh.address=:22", self.traefik_command)

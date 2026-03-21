@@ -85,3 +85,7 @@
 ## 2026-03-16 - Optimized Portainer Outbound Efficiency
 **Learning:** Similar to Traefik, Portainer CE sends anonymous usage statistics by default. Disabling this via the `--no-analytics` flag eliminates unnecessary outbound telemetry requests and reduces background processing cycles, further streamlining the management stack.
 **Action:** Consistently disable telemetry across all infrastructure components (Traefik, Portainer, etc.) to minimize non-functional overhead.
+
+## 2026-03-21 - Optimized Traefik Configuration Stability
+**Learning:** Traefik's default behavior is to perform a full configuration reload when a service temporarily has no active containers (e.g., during updates). Enabling `--providers.docker.allowEmptyServices=true` prevents these unnecessary reloads, reducing CPU spikes and improving stability.
+**Action:** Always enable `allowEmptyServices` for Traefik in environments with frequent service updates to maintain a consistent performance baseline.
