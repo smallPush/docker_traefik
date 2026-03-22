@@ -20,6 +20,8 @@ services:
       - "--global.checknewversion=false"
       # Optimization: Disable anonymous usage statistics to reduce unnecessary outbound network requests and minor processing overhead.
       - "--global.sendanonymoususage=false"
+      # Optimization: Prevent full configuration reloads and CPU spikes when a service has no active containers (e.g. during updates).
+      - "--providers.docker.allowEmptyServices=true"
       # Optimization: Enable dashboard mode to allow routing via the main entrypoint with compression.
       - "--api.dashboard=true"
       # Security: Disable insecure mode to prevent unauthorized access to the API and dashboard.
