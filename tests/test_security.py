@@ -44,7 +44,7 @@ class TestDockerComposeSecurity(unittest.TestCase):
         traefik = services.get('traefik', {})
         ports = traefik.get('ports', [])
 
-        exposed_ports = [str(p.get('published')) for p in ports]
+        exposed_ports = {str(p.get('published')) for p in ports}
         self.assertNotIn("8080", exposed_ports, "Port 8080 should NOT be exposed for security")
         self.assertIn("22", exposed_ports, "Port 22 should be exposed for backward compatibility")
 
