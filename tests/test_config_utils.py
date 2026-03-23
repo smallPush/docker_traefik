@@ -12,7 +12,11 @@ except ImportError:
 
 class TestConfigUtils(unittest.TestCase):
     def setUp(self):
-        # Reset the global cached config before each test
+        # Reset the global cached config before each test to ensure test isolation
+        config_utils._cached_config = None
+
+    def tearDown(self):
+        # Reset the global cached config after each test to prevent leaking mocks to other test classes
         config_utils._cached_config = None
 
     @patch('subprocess.run')

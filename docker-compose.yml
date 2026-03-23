@@ -25,6 +25,9 @@ services:
       # Security: Disable insecure mode to prevent unauthorized access to the API and dashboard.
       - "--api.insecure=false"
       - "--providers.docker=true"
+      # Optimization: Enable allowEmptyServices to prevent full configuration reloads and CPU spikes
+      # when a service temporarily has no active containers (e.g. during updates).
+      - "--providers.docker.allowEmptyServices=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.http.address=:80"
       # Optimization: Further reduce idle timeout, read timeout and write timeout to 30s to reclaim resources faster.

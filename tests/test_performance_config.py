@@ -75,6 +75,10 @@ class TestDockerComposePerformance(unittest.TestCase):
         self.assertIn("--api.dashboard=true", self.traefik_command)
         self.assertIn("--api.insecure=false", self.traefik_command)
 
+    def test_traefik_allow_empty_services(self):
+        """Verify Traefik allowEmptyServices is enabled."""
+        self.assertIn("--providers.docker.allowEmptyServices=true", self.traefik_command)
+
     def test_traefik_send_anonymous_usage(self):
         """Verify Traefik anonymous usage statistics are disabled."""
         self.assertIn("--global.sendanonymoususage=false", self.traefik_command)
