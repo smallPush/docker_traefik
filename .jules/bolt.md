@@ -85,3 +85,7 @@
 ## 2026-03-16 - Optimized Portainer Outbound Efficiency
 **Learning:** Similar to Traefik, Portainer CE sends anonymous usage statistics by default. Disabling this via the `--no-analytics` flag eliminates unnecessary outbound telemetry requests and reduces background processing cycles, further streamlining the management stack.
 **Action:** Consistently disable telemetry across all infrastructure components (Traefik, Portainer, etc.) to minimize non-functional overhead.
+
+## 2026-03-23 - Optimized Traefik Churn and Test Isolation
+**Learning:** Enabling `--providers.docker.allowEmptyServices=true` in Traefik prevents expensive full configuration reloads and CPU spikes when backend services are temporarily empty during rolling updates. Furthermore, when using a global configuration cache in Python test suites, it is critical to implement both `setUp` and `tearDown` to reset the cache, especially if some tests use mocks that would otherwise pollute the cache for subsequent tests.
+**Action:** Use `allowEmptyServices` to stabilize Traefik during container churn and always ensure strict cache isolation in test suites.
