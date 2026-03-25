@@ -115,6 +115,10 @@ class TestDockerComposePerformance(unittest.TestCase):
         self.assertIn("--serverstransport.forwardingtimeouts.dialtimeout=1s", self.traefik_command)
         self.assertIn("--serverstransport.forwardingtimeouts.responseheadertimeout=30s", self.traefik_command)
 
+    def test_traefik_backend_idle_timeout(self):
+        """Verify Traefik backend idle connection timeout is set."""
+        self.assertIn("--serverstransport.forwardingtimeouts.idleconntimeout=60s", self.traefik_command)
+
     def test_traefik_idle_timeout(self):
         """Verify Traefik idle timeout is optimized."""
         self.assertIn("--entrypoints.http.transport.respondingtimeouts.idletimeout=30s", self.traefik_command)
