@@ -12,6 +12,9 @@ class TestDockerComposeSecurity(unittest.TestCase):
         This significantly reduces total test execution time by avoiding redundant 'docker compose config' calls.
         """
         cls.config = get_docker_compose_config()
+        # Read the raw docker-compose.yml file once to verify source-level properties
+        with open('docker-compose.yml', 'r') as f:
+            cls.compose_content = f.read()
 
     def test_traefik_docker_socket_read_only(self):
         """
@@ -53,9 +56,9 @@ class TestDockerComposeSecurity(unittest.TestCase):
         Verify that the Traefik dashboard authentication credentials are not hardcoded
         in the docker-compose.yml file and instead use the TRAEFIK_DASHBOARD_AUTH
         environment variable.
+        Uses the cached configuration file content for improved performance.
         """
-        with open('docker-compose.yml', 'r') as f:
-            content = f.read()
+        content = self.compose_content
 
         # Check for the specific label and ensure it uses the environment variable placeholder.
         # This checks the source file directly, as 'docker compose config' would interpolate it.
