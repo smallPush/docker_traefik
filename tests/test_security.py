@@ -34,6 +34,19 @@ class TestDockerComposeSecurity(unittest.TestCase):
 
         self.assertTrue(found_socket_ro, "Traefik service must mount /var/run/docker.sock as read-only")
 
+    def test_traefik_exposed_by_default_disabled(self):
+        """
+        Verify that Traefik's 'exposedByDefault' is set to false.
+        This ensures that services are not automatically exposed by Traefik
+        unless they have the 'traefik.enable=true' label.
+        """
+        services = self.config.get('services', {})
+        traefik = services.get('traefik', {})
+        command = traefik.get('command', [])
+
+        self.assertIn("--providers.docker.exposedbydefault=false", command,
+                      "Traefik must have --providers.docker.exposedbydefault=false to prevent unauthorized exposure of services")
+
     def test_traefik_dashboard_ports_exposed(self):
         """
         Verify that port 22 is exposed for Traefik (backward compatibility),
