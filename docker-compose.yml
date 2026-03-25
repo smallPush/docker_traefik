@@ -14,6 +14,8 @@ services:
       # dialtimeout is reduced to 1s as backends are on the same internal network.
       - "--serverstransport.forwardingtimeouts.dialtimeout=1s"
       - "--serverstransport.forwardingtimeouts.responseheadertimeout=30s"
+      # Optimization: Reduce idle connection timeout to 60s for faster resource reclamation on internal networks.
+      - "--serverstransport.forwardingtimeouts.idleconntimeout=60s"
       # Optimization: Narrow Docker provider scope to the primary network to reduce overhead during service discovery.
       - "--providers.docker.network=rubofvil_lan"
       # Optimization: Disable version check and anonymous usage statistics to reduce unnecessary outbound requests on startup.
