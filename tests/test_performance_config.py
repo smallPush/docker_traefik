@@ -79,6 +79,10 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Verify Traefik allowemptyservices optimization is enabled."""
         self.assertIn("--providers.docker.allowemptyservices=true", self.traefik_command)
 
+    def test_traefik_docker_provider_filters(self):
+        """Verify Traefik Docker provider filters are configured."""
+        self.assertIn("--providers.docker.filters=label=traefik.enable=true", self.traefik_command)
+
     def test_traefik_send_anonymous_usage(self):
         """Verify Traefik anonymous usage statistics are disabled."""
         self.assertIn("--global.sendanonymoususage=false", self.traefik_command)
