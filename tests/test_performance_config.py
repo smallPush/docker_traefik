@@ -112,7 +112,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_connection_pooling(self):
         """Verify Traefik connection pooling is tuned."""
-        self.assertIn("--serverstransport.maxidleconnsperhost=500", self.traefik_command)
+        self.assertIn("--serverstransport.maxidleconnsperhost=2000", self.traefik_command)
 
     def test_traefik_forwarding_timeouts(self):
         """Verify Traefik forwarding timeouts are set."""
@@ -131,6 +131,14 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Verify Traefik read and write timeouts are set."""
         self.assertIn("--entrypoints.http.transport.respondingtimeouts.readtimeout=30s", self.traefik_command)
         self.assertIn("--entrypoints.http.transport.respondingtimeouts.writetimeout=30s", self.traefik_command)
+
+    def test_traefik_read_header_timeout(self):
+        """Verify Traefik read header timeout is set."""
+        self.assertIn("--entrypoints.http.transport.respondingtimeouts.readheadertimeout=10s", self.traefik_command)
+
+    def test_traefik_http2_max_concurrent_streams(self):
+        """Verify Traefik HTTP/2 max concurrent streams is increased."""
+        self.assertIn("--entrypoints.http.http2.maxconcurrentstreams=500", self.traefik_command)
 
     def test_traefik_global_compression(self):
         """Verify Traefik has global compression enabled on the http entrypoint."""

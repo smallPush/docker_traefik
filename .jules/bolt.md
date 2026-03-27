@@ -93,3 +93,7 @@
 ## 2026-03-26 - Optimized Docker Provider API Filtering
 **Learning:** By default, Traefik's Docker provider watches all Docker events and queries metadata for all containers. Using `--providers.docker.filters=label=traefik.enable=true` pushes the filtering to the Docker API level, reducing Traefik's CPU and memory overhead by only processing relevant containers.
 **Action:** Always apply Docker provider filters to limit Traefik's scope to explicitly enabled containers at the API level.
+
+## 2026-03-27 - Optimized Traefik Connection Reuse and HTTP/2 Throughput
+**Learning:** In environments with few backend services, Traefik's default 'maxIdleConnsPerHost' (typically much lower than the global pool) can bottleneck connection reuse if traffic spikes for a single service. Aligning it with the global 'maxIdleConns' ensures maximum reuse. Additionally, increasing 'maxConcurrentStreams' for HTTP/2 improves parallel asset loading for modern UIs like Portainer.
+**Action:** Align 'maxIdleConnsPerHost' with 'maxIdleConns' in small stacks and tune HTTP/2 concurrency for better frontend performance.
