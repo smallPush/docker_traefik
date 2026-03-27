@@ -18,6 +18,9 @@ services:
       - "--serverstransport.forwardingtimeouts.idleconntimeout=60s"
       # Optimization: Narrow Docker provider scope to the primary network to reduce overhead during service discovery.
       - "--providers.docker.network=rubofvil_lan"
+      # Optimization: Apply Docker provider filtering to only watch containers with 'traefik.enable=true' label.
+      # This reduces CPU and memory usage by filtering events and metadata at the Docker API level.
+      - "--providers.docker.filters=label=traefik.enable=true"
       # Optimization: Disable version check and anonymous usage statistics to reduce unnecessary outbound requests on startup.
       - "--global.checknewversion=false"
       # Optimization: Disable anonymous usage statistics to reduce unnecessary outbound network requests and minor processing overhead.
