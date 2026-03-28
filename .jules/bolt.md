@@ -93,3 +93,7 @@
 ## 2026-03-26 - Optimized Docker Provider API Filtering
 **Learning:** By default, Traefik's Docker provider watches all Docker events and queries metadata for all containers. Using `--providers.docker.filters=label=traefik.enable=true` pushes the filtering to the Docker API level, reducing Traefik's CPU and memory overhead by only processing relevant containers.
 **Action:** Always apply Docker provider filters to limit Traefik's scope to explicitly enabled containers at the API level.
+
+## 2026-03-27 - Optimized Traefik HTTP/2 and Header Timeouts
+**Learning:** Increasing `maxConcurrentStreams` for HTTP/2 to 500 allows better multiplexing for high-concurrency clients. Additionally, setting a `readHeaderTimeout` (e.g., 10s) is a critical performance and security measure to reclaim resources from slow-reading clients and mitigate Slowloris attacks.
+**Action:** Always tune HTTP/2 stream limits for high-concurrency entrypoints and implement header timeouts to improve overall stack resilience.
