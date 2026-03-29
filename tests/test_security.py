@@ -12,6 +12,9 @@ class TestDockerComposeSecurity(unittest.TestCase):
         This significantly reduces total test execution time by avoiding redundant 'docker compose config' calls.
         """
         cls.config = get_docker_compose_config()
+        # Optimization: Cache raw content of docker-compose.yml to avoid redundant file I/O in tests.
+        with open('docker-compose.yml', 'r') as f:
+            cls.raw_config = f.read()
 
     def test_traefik_docker_socket_read_only(self):
         """
@@ -54,8 +57,8 @@ class TestDockerComposeSecurity(unittest.TestCase):
         in the docker-compose.yml file and instead use the TRAEFIK_DASHBOARD_AUTH
         environment variable.
         """
-        with open('docker-compose.yml', 'r') as f:
-            content = f.read()
+        # Optimization: Use cached raw content of docker-compose.yml.
+        content = self.raw_config
 
         # Check for the specific label and ensure it uses the environment variable placeholder.
         # This checks the source file directly, as 'docker compose config' would interpolate it.
