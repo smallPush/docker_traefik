@@ -90,6 +90,10 @@
 **Learning:** Enabling `--providers.docker.allowEmptyServices=true` in Traefik prevents expensive full configuration reloads and CPU spikes when backend services are temporarily empty during rolling updates. Furthermore, when using a global configuration cache in Python test suites, it is critical to implement both `setUp` and `tearDown` to reset the cache, especially if some tests use mocks that would otherwise pollute the cache for subsequent tests.
 **Action:** Use `allowEmptyServices` to stabilize Traefik during container churn and always ensure strict cache isolation in test suites.
 
+## 2026-03-28 - Optimized Test Lookups for CLI Flags
+**Learning:** Using lists for membership checks (e.g., `assertIn` on `traefik_command`) in large test suites creates an O(n) bottleneck. Converting these to sets in `setUpClass` allows O(1) lookups, yielding a ~10x speedup (from 2.5s to 0.25s) in this codebase.
+**Action:** Always prefer class-level sets for verifying command-line arguments in configuration tests.
+
 ## 2026-03-26 - Optimized Docker Provider API Filtering
 **Learning:** By default, Traefik's Docker provider watches all Docker events and queries metadata for all containers. Using `--providers.docker.filters=label=traefik.enable=true` pushes the filtering to the Docker API level, reducing Traefik's CPU and memory overhead by only processing relevant containers.
 **Action:** Always apply Docker provider filters to limit Traefik's scope to explicitly enabled containers at the API level.
