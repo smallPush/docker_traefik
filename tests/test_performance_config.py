@@ -12,7 +12,6 @@ class TestDockerComposePerformance(unittest.TestCase):
 
         cls.traefik = services.get('traefik', {})
         cls.traefik_command = cls.traefik.get('command', [])
-        # Optimization: Use set for O(1) membership lookups in tests.
         cls.traefik_cmd_set = set(cls.traefik_command)
         cls.traefik_deploy = cls.traefik.get('deploy', {})
         cls.traefik_labels = cls.traefik.get('labels', {})
@@ -20,7 +19,6 @@ class TestDockerComposePerformance(unittest.TestCase):
 
         cls.portainer = services.get('portainer', {})
         cls.portainer_command = cls.portainer.get('command', [])
-        # Optimization: Use set for O(1) membership lookups in tests.
         cls.portainer_cmd_set = set(cls.portainer_command)
         cls.portainer_deploy = cls.portainer.get('deploy', {})
         cls.portainer_ulimits = cls.portainer.get('ulimits', {})
@@ -50,7 +48,6 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_log_level(self):
         """Verify Traefik log level is set to WARN."""
-        # Optimization: Use O(1) set lookup.
         self.assertIn("--log.level=WARN", self.traefik_cmd_set)
 
     def _get_env_dict(self, service_config):
@@ -77,28 +74,23 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_api_dashboard(self):
         """Verify Traefik API dashboard is enabled."""
-        # Optimization: Use O(1) set lookups.
         self.assertIn("--api.dashboard=true", self.traefik_cmd_set)
         self.assertIn("--api.insecure=false", self.traefik_cmd_set)
 
     def test_traefik_allow_empty_services(self):
         """Verify Traefik allowemptyservices optimization is enabled."""
-        # Optimization: Use O(1) set lookup.
         self.assertIn("--providers.docker.allowemptyservices=true", self.traefik_cmd_set)
 
     def test_traefik_docker_provider_filters(self):
         """Verify Traefik Docker provider filters are configured."""
-        # Optimization: Use O(1) set lookup.
         self.assertIn("--providers.docker.filters=label=traefik.enable=true", self.traefik_cmd_set)
 
     def test_traefik_send_anonymous_usage(self):
         """Verify Traefik anonymous usage statistics are disabled."""
-        # Optimization: Use O(1) set lookup.
         self.assertIn("--global.sendanonymoususage=false", self.traefik_cmd_set)
 
     def test_traefik_ssh_entrypoint(self):
         """Verify Traefik SSH entrypoint is present."""
-        # Optimization: Use O(1) set lookup.
         self.assertIn("--entrypoints.ssh.address=:22", self.traefik_cmd_set)
 
     def test_traefik_dashboard_router(self):
@@ -118,45 +110,37 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_max_idle_conns(self):
         """Verify Traefik global connection pooling is scaled."""
-        # Optimization: Use O(1) set lookup.
         self.assertIn("--serverstransport.maxidleconns=2000", self.traefik_cmd_set)
 
     def test_traefik_connection_pooling(self):
         """Verify Traefik connection pooling is tuned."""
-        # Optimization: Use O(1) set lookup.
-        self.assertIn("--serverstransport.maxidleconnsperhost=500", self.traefik_cmd_set)
+        self.assertIn("--serverstransport.maxidleconnsperhost=2000", self.traefik_cmd_set)
 
     def test_traefik_forwarding_timeouts(self):
         """Verify Traefik forwarding timeouts are set."""
-        # Optimization: Use O(1) set lookups.
         self.assertIn("--serverstransport.forwardingtimeouts.dialtimeout=1s", self.traefik_cmd_set)
         self.assertIn("--serverstransport.forwardingtimeouts.responseheadertimeout=30s", self.traefik_cmd_set)
 
     def test_traefik_backend_idle_timeout(self):
         """Verify Traefik backend idle connection timeout is set."""
-        # Optimization: Use O(1) set lookup.
         self.assertIn("--serverstransport.forwardingtimeouts.idleconntimeout=60s", self.traefik_cmd_set)
 
     def test_traefik_idle_timeout(self):
         """Verify Traefik idle timeout is optimized."""
-        # Optimization: Use O(1) set lookup.
         self.assertIn("--entrypoints.http.transport.respondingtimeouts.idletimeout=30s", self.traefik_cmd_set)
 
     def test_traefik_read_write_timeouts(self):
         """Verify Traefik read and write timeouts are set."""
-        # Optimization: Use O(1) set lookups.
         self.assertIn("--entrypoints.http.transport.respondingtimeouts.readtimeout=30s", self.traefik_cmd_set)
         self.assertIn("--entrypoints.http.transport.respondingtimeouts.writetimeout=30s", self.traefik_cmd_set)
         self.assertIn("--entrypoints.http.transport.respondingtimeouts.readheadertimeout=10s", self.traefik_cmd_set)
 
     def test_traefik_max_concurrent_streams(self):
         """Verify Traefik HTTP/2 max concurrent streams is optimized."""
-        # Optimization: Use O(1) set lookup.
         self.assertIn("--entrypoints.http.http2.maxconcurrentstreams=500", self.traefik_cmd_set)
 
     def test_traefik_global_compression(self):
         """Verify Traefik has global compression enabled on the http entrypoint."""
-        # Optimization: Use O(1) set lookup.
         self.assertIn("--entrypoints.http.http.middlewares=compress@docker", self.traefik_cmd_set)
 
     def test_traefik_compress_middleware_definition(self):
@@ -204,12 +188,10 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_portainer_snapshot_interval(self):
         """Verify Portainer snapshot interval is optimized."""
-        # Optimization: Use O(1) set lookup.
         self.assertIn("--snapshot-interval=1h", self.portainer_cmd_set)
 
     def test_portainer_analytics_disabled(self):
         """Verify Portainer anonymous usage statistics are disabled."""
-        # Optimization: Use O(1) set lookup.
         self.assertIn("--no-analytics", self.portainer_cmd_set)
 
 if __name__ == '__main__':
