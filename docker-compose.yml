@@ -8,12 +8,12 @@ services:
       - "--log.level=WARN"
       # Optimization: Further increase max idle connections per host to 2000 to maximize backend connection reuse.
       - "--serverstransport.maxidleconnsperhost=2000"
-      # Optimization: Scale global connection pooling to 2000 to allow more concurrent backend connections.
-      - "--serverstransport.maxidleconns=2000"
+      # Optimization: Scale global connection pooling to 4000 to eliminate potential global pool contention when multiple backends are active (accommodating 2000 per host).
+      - "--serverstransport.maxidleconns=4000"
       # Optimization: Set forwarding timeouts to fail fast on unreachable backends and prevent hanging on headers.
-      # dialtimeout is reduced to 1s as backends are on the same internal network.
+      # dialtimeout is reduced to 1s as backends are on the same internal network, and responseheadertimeout to 15s to reclaim resources faster.
       - "--serverstransport.forwardingtimeouts.dialtimeout=1s"
-      - "--serverstransport.forwardingtimeouts.responseheadertimeout=30s"
+      - "--serverstransport.forwardingtimeouts.responseheadertimeout=15s"
       # Optimization: Reduce idle connection timeout to 60s for faster resource reclamation on internal networks.
       - "--serverstransport.forwardingtimeouts.idleconntimeout=60s"
       # Optimization: Narrow Docker provider scope to the primary network to reduce overhead during service discovery.

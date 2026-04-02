@@ -101,3 +101,7 @@
 ## 2026-03-27 - Optimized Traefik HTTP/2 and Header Timeouts
 **Learning:** Increasing `maxConcurrentStreams` for HTTP/2 to 500 allows better multiplexing for high-concurrency clients. Additionally, setting a `readHeaderTimeout` (e.g., 10s) is a critical performance and security measure to reclaim resources from slow-reading clients and mitigate Slowloris attacks.
 **Action:** Always tune HTTP/2 stream limits for high-concurrency entrypoints and implement header timeouts to improve overall stack resilience.
+
+## 2026-03-28 - Optimized Traefik Global Connection Scaling and Fail-Fast
+**Learning:** Setting `maxIdleConns` equal to `maxIdleConnsPerHost` creates a global bottleneck if more than one backend is active. Scaling the global limit to a multiple of the per-host limit (e.g., 4000 for two backends at 2000 each) eliminates pool contention. Additionally, reducing `responseHeaderTimeout` to 15s in internal networks improves fail-fast behavior without risking legitimate request drops.
+**Action:** Always scale global `maxIdleConns` to accommodate multiple concurrent backend quotas and prefer aggressive fail-fast timeouts for internal traffic.
