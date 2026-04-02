@@ -8,8 +8,10 @@ services:
       - "--log.level=WARN"
       # Optimization: Further increase max idle connections per host to 2000 to maximize backend connection reuse.
       - "--serverstransport.maxidleconnsperhost=2000"
-      # Optimization: Scale global connection pooling to 2000 to allow more concurrent backend connections.
-      - "--serverstransport.maxidleconns=2000"
+      # Optimization: Scale global connection pooling to 4000 to allow more concurrent backend connections.
+      # This allows multiple backends (e.g. Portainer and the Traefik dashboard) to each utilize their
+      # 2000 maxidleconnsperhost quota without global pool contention.
+      - "--serverstransport.maxidleconns=4000"
       # Optimization: Set forwarding timeouts to fail fast on unreachable backends and prevent hanging on headers.
       # dialtimeout is reduced to 1s as backends are on the same internal network.
       - "--serverstransport.forwardingtimeouts.dialtimeout=1s"
