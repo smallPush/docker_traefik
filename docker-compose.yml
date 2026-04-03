@@ -11,9 +11,9 @@ services:
       # Optimization: Scale global connection pooling to 4000 to allow more concurrent backend connections.
       - "--serverstransport.maxidleconns=4000"
       # Optimization: Set forwarding timeouts to fail fast on unreachable backends and prevent hanging on headers.
-      # dialtimeout is reduced to 1s as backends are on the same internal network.
-      - "--serverstransport.forwardingtimeouts.dialtimeout=1s"
-      - "--serverstransport.forwardingtimeouts.responseheadertimeout=15s"
+      # dialtimeout is reduced to 500ms as backends are on the same internal network.
+      - "--serverstransport.forwardingtimeouts.dialtimeout=500ms"
+      - "--serverstransport.forwardingtimeouts.responseheadertimeout=10s"
       # Optimization: Reduce idle connection timeout to 60s for faster resource reclamation on internal networks.
       - "--serverstransport.forwardingtimeouts.idleconntimeout=60s"
       # Optimization: Narrow Docker provider scope to the primary network to reduce overhead during service discovery.
@@ -35,13 +35,13 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.http.address=:80"
-      # Optimization: Further reduce idle timeout, read timeout and write timeout to 30s to reclaim resources faster.
-      - "--entrypoints.http.transport.respondingtimeouts.idletimeout=30s"
+      # Optimization: Further reduce idle timeout to 15s, and read/write timeouts to 30s to reclaim resources faster.
+      - "--entrypoints.http.transport.respondingtimeouts.idletimeout=15s"
       # Optimization: Set read and write timeouts to 30s to prevent resource exhaustion from hanging connections.
       - "--entrypoints.http.transport.respondingtimeouts.readtimeout=30s"
       - "--entrypoints.http.transport.respondingtimeouts.writetimeout=30s"
-      # Optimization: Set read header timeout to 10s to prevent resource exhaustion from slow-reading clients.
-      - "--entrypoints.http.transport.respondingtimeouts.readheadertimeout=10s"
+      # Optimization: Set read header timeout to 5s to prevent resource exhaustion from slow-reading clients.
+      - "--entrypoints.http.transport.respondingtimeouts.readheadertimeout=5s"
       # Optimization: Increase max concurrent streams for HTTP/2 to 500 to allow more parallel requests per connection.
       - "--entrypoints.http.http2.maxconcurrentstreams=500"
       # Optimization: Enable global compression for all routers on the http entrypoint.

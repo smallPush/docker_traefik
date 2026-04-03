@@ -101,3 +101,7 @@
 ## 2026-03-27 - Optimized Traefik HTTP/2 and Header Timeouts
 **Learning:** Increasing `maxConcurrentStreams` for HTTP/2 to 500 allows better multiplexing for high-concurrency clients. Additionally, setting a `readHeaderTimeout` (e.g., 10s) is a critical performance and security measure to reclaim resources from slow-reading clients and mitigate Slowloris attacks.
 **Action:** Always tune HTTP/2 stream limits for high-concurrency entrypoints and implement header timeouts to improve overall stack resilience.
+
+## 2026-03-29 - Optimized Traefik Network Timeouts for Internal Networks
+**Learning:** Aggressive timeouts (e.g., 500ms dial, 10s response header) on internal Docker networks significantly improve fail-over speed and resource reclamation without impacting reliability in low-latency environments. Furthermore, reducing responding idle timeouts to 15s ensures that ephemeral connection resources are reclaimed more aggressively.
+**Action:** Standardize on tighter timeouts for internal service discovery and responding to improve stack responsiveness.
