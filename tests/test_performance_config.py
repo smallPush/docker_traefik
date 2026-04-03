@@ -98,10 +98,12 @@ class TestDockerComposePerformance(unittest.TestCase):
         labels = self.traefik_labels
 
         if isinstance(labels, list):
-            self.assertIn("traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)", labels)
-            self.assertIn("traefik.http.routers.dashboard.service=api@internal", labels)
-            self.assertIn("traefik.http.routers.dashboard.entrypoints=http", labels)
-            self.assertIn("traefik.http.routers.dashboard.middlewares=auth@docker", labels)
+            # Optimization: Localized set conversion to ensure O(1) membership checks for multiple assertions.
+            label_set = set(labels)
+            self.assertIn("traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)", label_set)
+            self.assertIn("traefik.http.routers.dashboard.service=api@internal", label_set)
+            self.assertIn("traefik.http.routers.dashboard.entrypoints=http", label_set)
+            self.assertIn("traefik.http.routers.dashboard.middlewares=auth@docker", label_set)
         else:
             self.assertEqual(labels.get("traefik.http.routers.dashboard.rule"), "Host(`traefik.localhost`)")
             self.assertEqual(labels.get("traefik.http.routers.dashboard.service"), "api@internal")
@@ -110,7 +112,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_max_idle_conns(self):
         """Verify Traefik global connection pooling is scaled."""
-        self.assertIn("--serverstransport.maxidleconns=2000", self.traefik_cmd_set)
+        self.assertIn("--serverstransport.maxidleconns=4000", self.traefik_cmd_set)
 
     def test_traefik_connection_pooling(self):
         """Verify Traefik connection pooling is tuned."""
@@ -119,7 +121,7 @@ class TestDockerComposePerformance(unittest.TestCase):
     def test_traefik_forwarding_timeouts(self):
         """Verify Traefik forwarding timeouts are set."""
         self.assertIn("--serverstransport.forwardingtimeouts.dialtimeout=1s", self.traefik_cmd_set)
-        self.assertIn("--serverstransport.forwardingtimeouts.responseheadertimeout=30s", self.traefik_cmd_set)
+        self.assertIn("--serverstransport.forwardingtimeouts.responseheadertimeout=15s", self.traefik_cmd_set)
 
     def test_traefik_backend_idle_timeout(self):
         """Verify Traefik backend idle connection timeout is set."""
