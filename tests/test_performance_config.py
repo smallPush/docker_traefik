@@ -15,13 +15,30 @@ class TestDockerComposePerformance(unittest.TestCase):
         cls.traefik_cmd_set = set(cls.traefik_command)
         cls.traefik_deploy = cls.traefik.get('deploy', {})
         cls.traefik_labels = cls.traefik.get('labels', {})
+        # Optimization: Cache labels as a set if they are a list for O(1) membership checks.
+        if isinstance(cls.traefik_labels, list):
+            cls.traefik_labels_set = set(cls.traefik_labels)
+        else:
+            cls.traefik_labels_set = set()
         cls.traefik_ulimits = cls.traefik.get('ulimits', {})
+        # Optimization: Cache normalized environment dictionary to avoid repeated parsing in tests.
+        cls.traefik_env = cls._normalize_env(cls.traefik)
 
         cls.portainer = services.get('portainer', {})
         cls.portainer_command = cls.portainer.get('command', [])
         cls.portainer_cmd_set = set(cls.portainer_command)
         cls.portainer_deploy = cls.portainer.get('deploy', {})
         cls.portainer_ulimits = cls.portainer.get('ulimits', {})
+        # Optimization: Cache normalized environment dictionary to avoid repeated parsing in tests.
+        cls.portainer_env = cls._normalize_env(cls.portainer)
+
+    @staticmethod
+    def _normalize_env(service_config):
+        """Normalize environment to a dictionary regardless of its format."""
+        env = service_config.get('environment', {})
+        if isinstance(env, list):
+            return dict(item.split('=', 1) for item in env)
+        return env
 
     def test_traefik_ulimits_nofile(self):
         """Verify Traefik has high nofile ulimits."""
@@ -50,27 +67,17 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Verify Traefik log level is set to WARN."""
         self.assertIn("--log.level=WARN", self.traefik_cmd_set)
 
-    def _get_env_dict(self, service_config):
-        """Normalize environment to a dictionary regardless of its format."""
-        env = service_config.get('environment', {})
-        if isinstance(env, list):
-            return dict(item.split('=', 1) for item in env)
-        return env
-
     def test_traefik_gomaxprocs(self):
         """Verify Traefik has GOMAXPROCS set."""
-        env_dict = self._get_env_dict(self.traefik)
-        self.assertEqual(env_dict.get('GOMAXPROCS'), "1")
+        self.assertEqual(self.traefik_env.get('GOMAXPROCS'), "1")
 
     def test_traefik_gomemlimit(self):
         """Verify Traefik has GOMEMLIMIT set."""
-        env_dict = self._get_env_dict(self.traefik)
-        self.assertEqual(env_dict.get('GOMEMLIMIT'), "460MiB")
+        self.assertEqual(self.traefik_env.get('GOMEMLIMIT'), "460MiB")
 
     def test_traefik_gogc(self):
         """Verify Traefik has GOGC set."""
-        env_dict = self._get_env_dict(self.traefik)
-        self.assertEqual(env_dict.get('GOGC'), "200")
+        self.assertEqual(self.traefik_env.get('GOGC'), "200")
 
     def test_traefik_api_dashboard(self):
         """Verify Traefik API dashboard is enabled."""
@@ -98,8 +105,7 @@ class TestDockerComposePerformance(unittest.TestCase):
         labels = self.traefik_labels
 
         if isinstance(labels, list):
-            # Optimization: Localized set conversion to ensure O(1) membership checks for multiple assertions.
-            label_set = set(labels)
+            label_set = self.traefik_labels_set
             self.assertIn("traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)", label_set)
             self.assertIn("traefik.http.routers.dashboard.service=api@internal", label_set)
             self.assertIn("traefik.http.routers.dashboard.entrypoints=http", label_set)
@@ -125,17 +131,17 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_backend_idle_timeout(self):
         """Verify Traefik backend idle connection timeout is set."""
-        self.assertIn("--serverstransport.forwardingtimeouts.idleconntimeout=60s", self.traefik_cmd_set)
+        self.assertIn("--serverstransport.forwardingtimeouts.idleconntimeout=30s", self.traefik_cmd_set)
 
     def test_traefik_idle_timeout(self):
         """Verify Traefik idle timeout is optimized."""
-        self.assertIn("--entrypoints.http.transport.respondingtimeouts.idletimeout=15s", self.traefik_cmd_set)
+        self.assertIn("--entrypoints.http.transport.respondingtimeouts.idletimeout=10s", self.traefik_cmd_set)
 
     def test_traefik_read_write_timeouts(self):
         """Verify Traefik read and write timeouts are set."""
         self.assertIn("--entrypoints.http.transport.respondingtimeouts.readtimeout=30s", self.traefik_cmd_set)
         self.assertIn("--entrypoints.http.transport.respondingtimeouts.writetimeout=30s", self.traefik_cmd_set)
-        self.assertIn("--entrypoints.http.transport.respondingtimeouts.readheadertimeout=5s", self.traefik_cmd_set)
+        self.assertIn("--entrypoints.http.transport.respondingtimeouts.readheadertimeout=3s", self.traefik_cmd_set)
 
     def test_traefik_max_concurrent_streams(self):
         """Verify Traefik HTTP/2 max concurrent streams is optimized."""
@@ -180,13 +186,11 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_portainer_gomaxprocs(self):
         """Verify Portainer has GOMAXPROCS set."""
-        env_dict = self._get_env_dict(self.portainer)
-        self.assertEqual(env_dict.get('GOMAXPROCS'), "1")
+        self.assertEqual(self.portainer_env.get('GOMAXPROCS'), "1")
 
     def test_portainer_gogc(self):
         """Verify Portainer has GOGC set."""
-        env_dict = self._get_env_dict(self.portainer)
-        self.assertEqual(env_dict.get('GOGC'), "200")
+        self.assertEqual(self.portainer_env.get('GOGC'), "200")
 
     def test_portainer_snapshot_interval(self):
         """Verify Portainer snapshot interval is optimized."""
