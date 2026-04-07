@@ -102,6 +102,10 @@
 **Learning:** In controlled internal Docker networks, the default or even slightly tuned timeouts (e.g., 1s dial timeout) can still be tightened further (e.g., 500ms) to accelerate failure detection and resource reclamation without risking false positives.
 **Action:** Use aggressive timeouts (500ms dial, 10s response header, 15s idle) for Traefik in stable, internal environments to maximize throughput and resilience.
 
+## 2026-04-01 - Aggressive Timeout Tightening and Test Suite Caching
+**Learning:** Further tightening Traefik's `readheadertimeout` (3s) and `idletimeout` (10s) on entrypoints, and `idleconntimeout` (30s) on backends, improves resource reclamation speed in high-churn environments. Additionally, caching normalized environment dictionaries and label sets in the test suite's `setUpClass` reduces redundant parsing during test execution.
+**Action:** Always aim for the most aggressive stable timeouts and use class-level caching for configuration data in tests.
+
 ## 2026-03-27 - Optimized Traefik HTTP/2 and Header Timeouts
 **Learning:** Increasing `maxConcurrentStreams` for HTTP/2 to 500 allows better multiplexing for high-concurrency clients. Additionally, setting a `readHeaderTimeout` (e.g., 10s) is a critical performance and security measure to reclaim resources from slow-reading clients and mitigate Slowloris attacks.
 **Action:** Always tune HTTP/2 stream limits for high-concurrency entrypoints and implement header timeouts to improve overall stack resilience.
