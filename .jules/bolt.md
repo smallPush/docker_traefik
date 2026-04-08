@@ -113,3 +113,7 @@
 ## 2026-03-29 - Hardened Traefik Forwarding and Idle Timeouts
 **Learning:** In internal Docker networks, the default `dialTimeout` and `responseHeaderTimeout` can be significantly reduced to fail fast and reclaim resources. Reducing `dialTimeout` to 500ms and `responseHeaderTimeout` to 10s ensures that Traefik doesn't hang on slow or unreachable backends. Similarly, reducing the entrypoint `idletimeout` to 15s reclaims client-side resources more aggressively without impacting standard web traffic.
 **Action:** Use aggressive timeouts (500ms dial, 10s response header, 15s idle) for internal container-to-container routing to maximize throughput and resilience.
+
+## 2026-04-05 - Optimized Compression Algorithms and Thresholds
+**Learning:** Default Traefik compression (Gzip, 1024B threshold) misses opportunities for modern, more efficient algorithms like Zstandard (zstd) and fails to compress small JSON fragments typical of API-heavy management tools. Setting `encodings=zstd,br,gzip` and `minResponseBodyBytes=256` significantly improves transfer efficiency for modern clients and small payloads.
+**Action:** Always tune compression algorithms to prioritize `zstd` and `br`, and lower the minimum body size threshold for API-centric deployments.
