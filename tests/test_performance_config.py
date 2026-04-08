@@ -152,14 +152,17 @@ class TestDockerComposePerformance(unittest.TestCase):
         self.assertIn("--entrypoints.http.http.middlewares=compress@docker", self.traefik_cmd_set)
 
     def test_traefik_compress_middleware_definition(self):
-        """Verify Traefik has the compress middleware defined."""
+        """Verify Traefik has the compress middleware defined with optimized settings."""
         labels = self.traefik_labels
 
         # Labels can be a list or a dict in the normalized JSON
         if isinstance(labels, list):
-            self.assertIn("traefik.http.middlewares.compress.compress=true", labels)
+            label_set = self.traefik_labels_set
+            self.assertIn("traefik.http.middlewares.compress.compress.encodings=zstd,br,gzip", label_set)
+            self.assertIn("traefik.http.middlewares.compress.compress.minResponseBodyBytes=256", label_set)
         else:
-            self.assertEqual(labels.get("traefik.http.middlewares.compress.compress"), "true")
+            self.assertEqual(labels.get("traefik.http.middlewares.compress.compress.encodings"), "zstd,br,gzip")
+            self.assertEqual(labels.get("traefik.http.middlewares.compress.compress.minResponseBodyBytes"), "256")
 
     def test_portainer_ulimits_nofile(self):
         """Verify Portainer has high nofile ulimits."""
