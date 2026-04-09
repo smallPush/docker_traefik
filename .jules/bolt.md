@@ -117,3 +117,7 @@
 ## 2026-04-05 - Optimized Compression Algorithms and Thresholds
 **Learning:** Default Traefik compression (Gzip, 1024B threshold) misses opportunities for modern, more efficient algorithms like Zstandard (zstd) and fails to compress small JSON fragments typical of API-heavy management tools. Setting `encodings=zstd,br,gzip` and `minResponseBodyBytes=256` significantly improves transfer efficiency for modern clients and small payloads.
 **Action:** Always tune compression algorithms to prioritize `zstd` and `br`, and lower the minimum body size threshold for API-centric deployments.
+
+## 2026-04-09 - Aggressive Timeout Tuning for Internal Networks
+**Learning:** In stable, low-latency internal Docker networks, standard timeouts can be aggressively tightened (e.g., 200ms dial, 2s response header, 5s idle) to accelerate resource reclamation and ensure the proxy fails fast during backend degradations. This prevents the proxy from being tied up by slow or hanging connections, maintaining overall stack throughput.
+**Action:** Apply aggressive timeouts for internal service-to-service communication to maximize proxy efficiency and resilience against "slow" failure modes.
