@@ -121,3 +121,7 @@
 ## 2026-04-09 - Aggressive Timeout Tuning for Internal Networks
 **Learning:** In stable, low-latency internal Docker networks, standard timeouts can be aggressively tightened (e.g., 200ms dial, 2s response header, 5s idle) to accelerate resource reclamation and ensure the proxy fails fast during backend degradations. This prevents the proxy from being tied up by slow or hanging connections, maintaining overall stack throughput.
 **Action:** Apply aggressive timeouts for internal service-to-service communication to maximize proxy efficiency and resilience against "slow" failure modes.
+
+## 2026-04-11 - Optimized Test Suite Normalization
+**Learning:** Configuration data from `docker compose config` can arrive in multiple formats (e.g., labels as lists or dicts). Normalizing these into dictionaries once during `setUpClass` using efficient dictionary comprehensions (`{k: v for item in env for k, v in [item.split('=', 1)]}`) significantly improves test maintainability and slightly boosts execution speed by enabling O(1) direct lookups instead of O(n) membership checks or repeated branching.
+**Action:** Centralize data normalization in test suites to simplify assertions and maximize lookup performance.
