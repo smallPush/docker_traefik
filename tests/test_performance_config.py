@@ -14,12 +14,8 @@ class TestDockerComposePerformance(unittest.TestCase):
         cls.traefik_command = cls.traefik.get('command', [])
         cls.traefik_cmd_set = set(cls.traefik_command)
         cls.traefik_deploy = cls.traefik.get('deploy', {})
-        cls.traefik_labels = cls.traefik.get('labels', {})
-        # Optimization: Cache labels as a set if they are a list for O(1) membership checks.
-        if isinstance(cls.traefik_labels, list):
-            cls.traefik_labels_set = set(cls.traefik_labels)
-        else:
-            cls.traefik_labels_set = set()
+        # Optimization: Normalize labels to a dictionary once in setUpClass to eliminate redundant checks in tests.
+        cls.traefik_labels = cls._normalize_labels(cls.traefik)
         cls.traefik_ulimits = cls.traefik.get('ulimits', {})
         # Optimization: Cache normalized environment dictionary to avoid repeated parsing in tests.
         cls.traefik_env = cls._normalize_env(cls.traefik)
@@ -28,6 +24,8 @@ class TestDockerComposePerformance(unittest.TestCase):
         cls.portainer_command = cls.portainer.get('command', [])
         cls.portainer_cmd_set = set(cls.portainer_command)
         cls.portainer_deploy = cls.portainer.get('deploy', {})
+        # Optimization: Normalize labels to a dictionary once in setUpClass to eliminate redundant checks in tests.
+        cls.portainer_labels = cls._normalize_labels(cls.portainer)
         cls.portainer_ulimits = cls.portainer.get('ulimits', {})
         # Optimization: Cache normalized environment dictionary to avoid repeated parsing in tests.
         cls.portainer_env = cls._normalize_env(cls.portainer)
@@ -37,8 +35,18 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Normalize environment to a dictionary regardless of its format."""
         env = service_config.get('environment', {})
         if isinstance(env, list):
-            return dict(item.split('=', 1) for item in env)
+            # Optimization: Use dictionary comprehension for faster parsing of environment variables.
+            return {k: v for item in env for k, v in [item.split('=', 1)]}
         return env
+
+    @staticmethod
+    def _normalize_labels(service_config):
+        """Normalize labels to a dictionary regardless of its format."""
+        labels = service_config.get('labels', {})
+        if isinstance(labels, list):
+            # Optimization: Use dictionary comprehension for faster parsing of labels.
+            return {k: v for item in labels for k, v in [item.split('=', 1)]}
+        return labels
 
     def test_traefik_ulimits_nofile(self):
         """Verify Traefik has high nofile ulimits."""
@@ -102,19 +110,13 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_dashboard_router(self):
         """Verify Traefik dashboard router is configured with optimized middleware chain."""
+        # Optimization: Use pre-normalized labels dictionary for direct O(1) lookups.
         labels = self.traefik_labels
 
-        if isinstance(labels, list):
-            label_set = self.traefik_labels_set
-            self.assertIn("traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)", label_set)
-            self.assertIn("traefik.http.routers.dashboard.service=api@internal", label_set)
-            self.assertIn("traefik.http.routers.dashboard.entrypoints=http", label_set)
-            self.assertIn("traefik.http.routers.dashboard.middlewares=auth@docker", label_set)
-        else:
-            self.assertEqual(labels.get("traefik.http.routers.dashboard.rule"), "Host(`traefik.localhost`)")
-            self.assertEqual(labels.get("traefik.http.routers.dashboard.service"), "api@internal")
-            self.assertEqual(labels.get("traefik.http.routers.dashboard.entrypoints"), "http")
-            self.assertEqual(labels.get("traefik.http.routers.dashboard.middlewares"), "auth@docker")
+        self.assertEqual(labels.get("traefik.http.routers.dashboard.rule"), "Host(`traefik.localhost`)")
+        self.assertEqual(labels.get("traefik.http.routers.dashboard.service"), "api@internal")
+        self.assertEqual(labels.get("traefik.http.routers.dashboard.entrypoints"), "http")
+        self.assertEqual(labels.get("traefik.http.routers.dashboard.middlewares"), "auth@docker")
 
     def test_traefik_max_idle_conns(self):
         """Verify Traefik global connection pooling is scaled."""
@@ -153,16 +155,11 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_compress_middleware_definition(self):
         """Verify Traefik has the compress middleware defined with optimized settings."""
+        # Optimization: Use pre-normalized labels dictionary for direct O(1) lookups.
         labels = self.traefik_labels
 
-        # Labels can be a list or a dict in the normalized JSON
-        if isinstance(labels, list):
-            label_set = self.traefik_labels_set
-            self.assertIn("traefik.http.middlewares.compress.compress.encodings=zstd,br,gzip", label_set)
-            self.assertIn("traefik.http.middlewares.compress.compress.minResponseBodyBytes=256", label_set)
-        else:
-            self.assertEqual(labels.get("traefik.http.middlewares.compress.compress.encodings"), "zstd,br,gzip")
-            self.assertEqual(labels.get("traefik.http.middlewares.compress.compress.minResponseBodyBytes"), "256")
+        self.assertEqual(labels.get("traefik.http.middlewares.compress.compress.encodings"), "zstd,br,gzip")
+        self.assertEqual(labels.get("traefik.http.middlewares.compress.compress.minResponseBodyBytes"), "256")
 
     def test_portainer_ulimits_nofile(self):
         """Verify Portainer has high nofile ulimits."""
