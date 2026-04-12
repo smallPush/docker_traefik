@@ -11,10 +11,10 @@ services:
       # Optimization: Scale global connection pooling to 4000 to allow more concurrent backend connections.
       - "--serverstransport.maxidleconns=4000"
       # Optimization: Set forwarding timeouts to fail fast on unreachable backends and prevent hanging on headers.
-      # dialtimeout is reduced to 200ms as backends are on the same internal network.
-      - "--serverstransport.forwardingtimeouts.dialtimeout=200ms"
-      # Optimization: Tighten response header timeout to 2s to fail fast on slow backends.
-      - "--serverstransport.forwardingtimeouts.responseheadertimeout=2s"
+      # dialtimeout is reduced to 100ms as backends are on the same low-latency internal network.
+      - "--serverstransport.forwardingtimeouts.dialtimeout=100ms"
+      # Optimization: Tighten response header timeout to 1s to fail fast on slow backends.
+      - "--serverstransport.forwardingtimeouts.responseheadertimeout=1s"
       # Optimization: Further reduce idle connection timeout to 5s for faster resource reclamation on internal networks.
       - "--serverstransport.forwardingtimeouts.idleconntimeout=5s"
       # Optimization: Narrow Docker provider scope to the primary network to reduce overhead during service discovery.
@@ -36,15 +36,15 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.http.address=:80"
-      # Optimization: Tighten idle timeout to 5s to reclaim resources faster.
+      # Optimization: Tighten idle timeout to 5s to reclaim resources faster in high-concurrency environments.
       - "--entrypoints.http.transport.respondingtimeouts.idletimeout=5s"
       # Optimization: Set read and write timeouts to 30s to prevent resource exhaustion from hanging connections.
       - "--entrypoints.http.transport.respondingtimeouts.readtimeout=30s"
       - "--entrypoints.http.transport.respondingtimeouts.writetimeout=30s"
       # Optimization: Tighten read header timeout to 500ms to prevent resource exhaustion from slow-reading clients.
       - "--entrypoints.http.transport.respondingtimeouts.readheadertimeout=500ms"
-      # Optimization: Increase max concurrent streams for HTTP/2 to 500 to allow more parallel requests per connection.
-      - "--entrypoints.http.http2.maxconcurrentstreams=500"
+      # Optimization: Increase max concurrent streams for HTTP/2 to 1000 to allow more parallel requests per connection.
+      - "--entrypoints.http.http2.maxconcurrentstreams=1000"
       # Optimization: Enable global compression for all routers on the http entrypoint.
       # This reduces bandwidth usage and improves load times for all services by default.
       - "--entrypoints.http.http.middlewares=compress@docker"
