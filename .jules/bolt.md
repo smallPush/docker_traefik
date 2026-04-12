@@ -125,3 +125,7 @@
 ## 2026-04-11 - Optimized Test Suite Normalization
 **Learning:** Configuration data from `docker compose config` can arrive in multiple formats (e.g., labels as lists or dicts). Normalizing these into dictionaries once during `setUpClass` using efficient dictionary comprehensions (`{k: v for item in env for k, v in [item.split('=', 1)]}`) significantly improves test maintainability and slightly boosts execution speed by enabling O(1) direct lookups instead of O(n) membership checks or repeated branching.
 **Action:** Centralize data normalization in test suites to simplify assertions and maximize lookup performance.
+
+## 2026-04-12 - Balanced Timeout Tightening for Internal Networks
+**Learning:** While tightening `dialTimeout` to 50ms can accelerate failure detection, it poses a risk of intermittent failures due to transient scheduling or network jitter even on internal Docker networks. A moderated "fail-fast" value of 100ms provides a safer balance between performance and reliability. Additionally, over-tightening `idleTimeout` (e.g., to 2s) can trigger excessive connection churn, increasing latency and CPU overhead from frequent TCP/TLS handshakes.
+**Action:** Prefer moderated timeout reductions (e.g., 100ms dial, 1s response header) and maintain stable idle timeouts (5s+) unless specific traffic patterns justify more aggressive reclamation.
