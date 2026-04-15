@@ -6,8 +6,8 @@ services:
     command:
       # Optimization: Further reduced log level from INFO to WARN to decrease CPU/IO overhead per request.
       - "--log.level=WARN"
-      # Optimization: Further increase max idle connections per host to 2000 to maximize backend connection reuse.
-      - "--serverstransport.maxidleconnsperhost=2000"
+      # Optimization: Set max idle connections per host to match global limit (8000) to maximize backend connection reuse for individual backends.
+      - "--serverstransport.maxidleconnsperhost=8000"
       # Optimization: Scale global connection pooling to 8000 to allow more concurrent backend connections across multiple backends.
       - "--serverstransport.maxidleconns=8000"
       # Optimization: Set forwarding timeouts to fail fast on unreachable backends and prevent hanging on headers.
@@ -15,8 +15,8 @@ services:
       - "--serverstransport.forwardingtimeouts.dialtimeout=100ms"
       # Optimization: Tighten response header timeout to 1s to fail fast on slow backends.
       - "--serverstransport.forwardingtimeouts.responseheadertimeout=1s"
-      # Optimization: Further reduce idle connection timeout to 5s for faster resource reclamation on internal networks.
-      - "--serverstransport.forwardingtimeouts.idleconntimeout=5s"
+      # Optimization: Further reduce idle connection timeout to 2s for faster resource reclamation on internal networks.
+      - "--serverstransport.forwardingtimeouts.idleconntimeout=2s"
       # Optimization: Narrow Docker provider scope to the primary network to reduce overhead during service discovery.
       - "--providers.docker.network=rubofvil_lan"
       # Optimization: Apply Docker provider filtering to only watch containers with 'traefik.enable=true' label.
@@ -38,11 +38,11 @@ services:
       - "--entrypoints.http.address=:80"
       # Optimization: Tighten idle timeout to 5s to reclaim resources faster.
       - "--entrypoints.http.transport.respondingtimeouts.idletimeout=5s"
-      # Optimization: Set read and write timeouts to 15s to prevent resource exhaustion from hanging connections.
-      - "--entrypoints.http.transport.respondingtimeouts.readtimeout=15s"
-      - "--entrypoints.http.transport.respondingtimeouts.writetimeout=15s"
-      # Optimization: Tighten read header timeout to 500ms to prevent resource exhaustion from slow-reading clients.
-      - "--entrypoints.http.transport.respondingtimeouts.readheadertimeout=500ms"
+      # Optimization: Tighten read and write timeouts to 10s to prevent resource exhaustion from hanging connections.
+      - "--entrypoints.http.transport.respondingtimeouts.readtimeout=10s"
+      - "--entrypoints.http.transport.respondingtimeouts.writetimeout=10s"
+      # Optimization: Tighten read header timeout to 250ms to prevent resource exhaustion from slow-reading clients.
+      - "--entrypoints.http.transport.respondingtimeouts.readheadertimeout=250ms"
       # Optimization: Increase max concurrent streams for HTTP/2 to 1000 to allow more parallel requests per connection.
       - "--entrypoints.http.http2.maxconcurrentstreams=1000"
       # Optimization: Enable global compression for all routers on the http entrypoint.

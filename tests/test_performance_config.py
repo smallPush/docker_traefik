@@ -124,7 +124,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_connection_pooling(self):
         """Verify Traefik connection pooling is tuned."""
-        self.assertIn("--serverstransport.maxidleconnsperhost=2000", self.traefik_cmd_set)
+        self.assertIn("--serverstransport.maxidleconnsperhost=8000", self.traefik_cmd_set)
 
     def test_traefik_forwarding_timeouts(self):
         """Verify Traefik forwarding timeouts are set."""
@@ -133,7 +133,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_backend_idle_timeout(self):
         """Verify Traefik backend idle connection timeout is set."""
-        self.assertIn("--serverstransport.forwardingtimeouts.idleconntimeout=5s", self.traefik_cmd_set)
+        self.assertIn("--serverstransport.forwardingtimeouts.idleconntimeout=2s", self.traefik_cmd_set)
 
     def test_traefik_idle_timeout(self):
         """Verify Traefik idle timeout is optimized."""
@@ -141,9 +141,9 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_read_write_timeouts(self):
         """Verify Traefik read and write timeouts are set."""
-        self.assertIn("--entrypoints.http.transport.respondingtimeouts.readtimeout=15s", self.traefik_cmd_set)
-        self.assertIn("--entrypoints.http.transport.respondingtimeouts.writetimeout=15s", self.traefik_cmd_set)
-        self.assertIn("--entrypoints.http.transport.respondingtimeouts.readheadertimeout=500ms", self.traefik_cmd_set)
+        self.assertIn("--entrypoints.http.transport.respondingtimeouts.readtimeout=10s", self.traefik_cmd_set)
+        self.assertIn("--entrypoints.http.transport.respondingtimeouts.writetimeout=10s", self.traefik_cmd_set)
+        self.assertIn("--entrypoints.http.transport.respondingtimeouts.readheadertimeout=250ms", self.traefik_cmd_set)
 
     def test_traefik_max_concurrent_streams(self):
         """Verify Traefik HTTP/2 max concurrent streams is optimized."""
