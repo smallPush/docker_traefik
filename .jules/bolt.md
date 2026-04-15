@@ -125,3 +125,7 @@
 ## 2026-04-11 - Optimized Test Suite Normalization
 **Learning:** Configuration data from `docker compose config` can arrive in multiple formats (e.g., labels as lists or dicts). Normalizing these into dictionaries once during `setUpClass` using efficient dictionary comprehensions (`{k: v for item in env for k, v in [item.split('=', 1)]}`) significantly improves test maintainability and slightly boosts execution speed by enabling O(1) direct lookups instead of O(n) membership checks or repeated branching.
 **Action:** Centralize data normalization in test suites to simplify assertions and maximize lookup performance.
+
+## 2026-04-14 - Optimized Traefik Hyper-Aggressive Timeouts
+**Learning:** In highly controlled internal networks with very low latency, Traefik's forwarding timeouts can be tuned to hyper-aggressive levels (e.g., 100ms dial, 1s response header) to maximize failure detection speed and resource reclamation. Additionally, doubling global connection pooling (to 8000) and halving entrypoint read/write timeouts (to 15s) further reduces resource contention and long-lived connection overhead.
+**Action:** Apply hyper-aggressive timeouts and larger connection pools for high-concurrency, low-latency internal environments.
