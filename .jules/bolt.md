@@ -129,3 +129,7 @@
 ## 2026-04-14 - Optimized Traefik Hyper-Aggressive Timeouts
 **Learning:** In highly controlled internal networks with very low latency, Traefik's forwarding timeouts can be tuned to hyper-aggressive levels (e.g., 100ms dial, 1s response header) to maximize failure detection speed and resource reclamation. Additionally, doubling global connection pooling (to 8000) and halving entrypoint read/write timeouts (to 15s) further reduces resource contention and long-lived connection overhead.
 **Action:** Apply hyper-aggressive timeouts and larger connection pools for high-concurrency, low-latency internal environments.
+
+## 2026-04-16 - Refined Traefik Timeout and Connection Scaling
+**Learning:** In ultra-low-latency internal Docker networks, Traefik's timeouts can be pushed to extreme levels (e.g., 250ms readHeader, 2s idle) to near-instantly reclaim resources without impacting legitimate traffic. Furthermore, aligning 'maxIdleConnsPerHost' with the global 'maxIdleConns' ensures that a single high-traffic backend can fully utilize the connection pool, eliminating artificial bottlenecks during peak load on a specific service.
+**Action:** Continually push timeout boundaries in controlled environments and ensure per-host connection limits don't unnecessarily throttle individual high-demand backends.
