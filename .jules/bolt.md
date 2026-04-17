@@ -133,3 +133,7 @@
 ## 2026-04-16 - Refined Traefik Timeout and Connection Scaling
 **Learning:** In ultra-low-latency internal Docker networks, Traefik's timeouts can be pushed to extreme levels (e.g., 250ms readHeader, 2s idle) to near-instantly reclaim resources without impacting legitimate traffic. Furthermore, aligning 'maxIdleConnsPerHost' with the global 'maxIdleConns' ensures that a single high-traffic backend can fully utilize the connection pool, eliminating artificial bottlenecks during peak load on a specific service.
 **Action:** Continually push timeout boundaries in controlled environments and ensure per-host connection limits don't unnecessarily throttle individual high-demand backends.
+
+## 2026-04-17 - Hyper-Aggressive Responding Timeouts
+**Learning:** Tightening entrypoint responding timeouts to hyper-aggressive levels (2s idle, 5s read/write) in stable internal networks accelerates the reclamation of file descriptors and memory from slow or inactive clients. This improves overall stack throughput by ensuring that the proxy remains focused on active, healthy connections.
+**Action:** Implement hyper-aggressive responding timeouts on all high-traffic HTTP entrypoints in controlled environments.

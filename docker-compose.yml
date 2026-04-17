@@ -22,7 +22,7 @@ services:
       # Optimization: Apply Docker provider filtering to only watch containers with 'traefik.enable=true' label.
       # This reduces CPU and memory usage by filtering events and metadata at the Docker API level.
       - "--providers.docker.filters=label=traefik.enable=true"
-      # Optimization: Disable version check and anonymous usage statistics to reduce unnecessary outbound requests on startup.
+      # Optimization: Disable version check to reduce unnecessary outbound requests on startup.
       - "--global.checknewversion=false"
       # Optimization: Disable anonymous usage statistics to reduce unnecessary outbound network requests and minor processing overhead.
       - "--global.sendanonymoususage=false"
@@ -36,11 +36,11 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.http.address=:80"
-      # Optimization: Tighten idle timeout to 5s to reclaim resources faster.
-      - "--entrypoints.http.transport.respondingtimeouts.idletimeout=5s"
-      # Optimization: Tighten read and write timeouts to 10s to prevent resource exhaustion from hanging connections.
-      - "--entrypoints.http.transport.respondingtimeouts.readtimeout=10s"
-      - "--entrypoints.http.transport.respondingtimeouts.writetimeout=10s"
+      # Optimization: Tighten idle timeout to 2s to reclaim resources faster.
+      - "--entrypoints.http.transport.respondingtimeouts.idletimeout=2s"
+      # Optimization: Tighten read and write timeouts to 5s to prevent resource exhaustion from hanging connections.
+      - "--entrypoints.http.transport.respondingtimeouts.readtimeout=5s"
+      - "--entrypoints.http.transport.respondingtimeouts.writetimeout=5s"
       # Optimization: Tighten read header timeout to 250ms to prevent resource exhaustion from slow-reading clients.
       - "--entrypoints.http.transport.respondingtimeouts.readheadertimeout=250ms"
       # Optimization: Increase max concurrent streams for HTTP/2 to 1000 to allow more parallel requests per connection.
