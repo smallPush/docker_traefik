@@ -137,12 +137,12 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_idle_timeout(self):
         """Verify Traefik idle timeout is optimized."""
-        self.assertIn("--entrypoints.http.transport.respondingtimeouts.idletimeout=5s", self.traefik_cmd_set)
+        self.assertIn("--entrypoints.http.transport.respondingtimeouts.idletimeout=2s", self.traefik_cmd_set)
 
     def test_traefik_read_write_timeouts(self):
         """Verify Traefik read and write timeouts are set."""
-        self.assertIn("--entrypoints.http.transport.respondingtimeouts.readtimeout=10s", self.traefik_cmd_set)
-        self.assertIn("--entrypoints.http.transport.respondingtimeouts.writetimeout=10s", self.traefik_cmd_set)
+        self.assertIn("--entrypoints.http.transport.respondingtimeouts.readtimeout=5s", self.traefik_cmd_set)
+        self.assertIn("--entrypoints.http.transport.respondingtimeouts.writetimeout=5s", self.traefik_cmd_set)
         self.assertIn("--entrypoints.http.transport.respondingtimeouts.readheadertimeout=250ms", self.traefik_cmd_set)
 
     def test_traefik_max_concurrent_streams(self):
