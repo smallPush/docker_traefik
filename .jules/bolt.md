@@ -38,6 +38,10 @@
 **Learning:** Portainer CE 2.6.0 (Go-based) performance is optimized by setting 'GOMAXPROCS=1' (matching its 0.5 CPU limit) and increasing 'nofile' ulimits to 65535. Note that GOMEMLIMIT is not supported in this version due to its older Go runtime. Additionally, test scripts validating environment variables in 'docker-compose.yml' must handle both list and dictionary normalization to be robust.
 **Action:** Align 'GOMAXPROCS' with fractional CPU limits for all Go services and implement robust environment variable parsing in performance tests.
 
+## 2026-04-18 - Balanced Traefik Timeout Tuning
+**Learning:** While tightening timeouts improves resource reclamation, overly aggressive `readtimeout` and `writetimeout` (e.g., 5s) for a general-purpose edge proxy can trigger premature 504 errors on slow connections or for large payloads. Tuning `idletimeout` to 2s is a safer way to reclaim idle resources without impacting active, albeit slow, requests.
+**Action:** Prioritize `idletimeout` for aggressive tuning and keep `read`/`write` timeouts at a conservative minimum (e.g., 10s) unless specific backend needs dictate otherwise.
+
 ## 2026-02-27 - Portainer Resource Reservations and Test Refactoring
 **Learning:** Adding resource reservations for management services like Portainer prevents performance degradation and starvation when the host system is under heavy load. Furthermore, refactoring test suites to use a centralized normalization method for Docker environment variables (handling both list and dict formats) significantly improves maintainability and reliability of performance assertions.
 **Action:** Always define resource reservations for critical services and use a common `_get_env_dict` helper in performance tests.
