@@ -133,3 +133,6 @@
 ## 2026-04-16 - Refined Traefik Timeout and Connection Scaling
 **Learning:** In ultra-low-latency internal Docker networks, Traefik's timeouts can be pushed to extreme levels (e.g., 250ms readHeader, 2s idle) to near-instantly reclaim resources without impacting legitimate traffic. Furthermore, aligning 'maxIdleConnsPerHost' with the global 'maxIdleConns' ensures that a single high-traffic backend can fully utilize the connection pool, eliminating artificial bottlenecks during peak load on a specific service.
 **Action:** Continually push timeout boundaries in controlled environments and ensure per-host connection limits don't unnecessarily throttle individual high-demand backends.
+## 2026-04-19 - Optimized Global Connection Pooling and Idle Timeouts
+**Learning:** Scaling the global 'maxIdleConns' to the sum of all backend 'maxIdleConnsPerHost' quotas (e.g., 16000 for 2 backends with 8000 each) prevents global pool contention and ensures each service can fully utilize its connection reuse potential. Additionally, tightening the responding 'idletimeout' to 2s further accelerates resource reclamation on low-latency internal networks.
+**Action:** Always scale global connection pools to accommodate the aggregate per-host limits and push responding timeouts to the lowest stable threshold for internal traffic.
