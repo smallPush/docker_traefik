@@ -15,8 +15,8 @@ services:
       - "--serverstransport.forwardingtimeouts.dialtimeout=100ms"
       # Optimization: Tighten response header timeout to 1s to fail fast on slow backends.
       - "--serverstransport.forwardingtimeouts.responseheadertimeout=1s"
-      # Optimization: Further reduce idle connection timeout to 2s for faster resource reclamation on internal networks.
-      - "--serverstransport.forwardingtimeouts.idleconntimeout=2s"
+      # Optimization: Further reduce idle connection timeout to 1s for faster resource reclamation on internal networks.
+      - "--serverstransport.forwardingtimeouts.idleconntimeout=1s"
       # Optimization: Narrow Docker provider scope to the primary network to reduce overhead during service discovery.
       - "--providers.docker.network=rubofvil_lan"
       # Optimization: Apply Docker provider filtering to only watch containers with 'traefik.enable=true' label.
@@ -36,13 +36,13 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.http.address=:80"
-      # Optimization: Tighten idle timeout to 2s to reclaim resources faster.
-      - "--entrypoints.http.transport.respondingtimeouts.idletimeout=2s"
+      # Optimization: Tighten idle timeout to 1s to reclaim resources faster.
+      - "--entrypoints.http.transport.respondingtimeouts.idletimeout=1s"
       # Optimization: Tighten read and write timeouts to 10s to prevent resource exhaustion from hanging connections.
       - "--entrypoints.http.transport.respondingtimeouts.readtimeout=10s"
       - "--entrypoints.http.transport.respondingtimeouts.writetimeout=10s"
-      # Optimization: Tighten read header timeout to 250ms to prevent resource exhaustion from slow-reading clients.
-      - "--entrypoints.http.transport.respondingtimeouts.readheadertimeout=250ms"
+      # Optimization: Tighten read header timeout to 200ms to prevent resource exhaustion from slow-reading clients.
+      - "--entrypoints.http.transport.respondingtimeouts.readheadertimeout=200ms"
       # Optimization: Increase max concurrent streams for HTTP/2 to 1000 to allow more parallel requests per connection.
       - "--entrypoints.http.http2.maxconcurrentstreams=1000"
       # Optimization: Enable global compression for all routers on the http entrypoint.

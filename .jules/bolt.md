@@ -136,3 +136,7 @@
 ## 2026-04-19 - Optimized Global Connection Pooling and Idle Timeouts
 **Learning:** Scaling the global 'maxIdleConns' to the sum of all backend 'maxIdleConnsPerHost' quotas (e.g., 16000 for 2 backends with 8000 each) prevents global pool contention and ensures each service can fully utilize its connection reuse potential. Additionally, tightening the responding 'idletimeout' to 2s further accelerates resource reclamation on low-latency internal networks.
 **Action:** Always scale global connection pools to accommodate the aggregate per-host limits and push responding timeouts to the lowest stable threshold for internal traffic.
+
+## 2026-04-20 - Tightened Traefik Idle and Header Timeouts
+**Learning:** Reducing Traefik's 'idleconntimeout' (both forwarding and responding) and 'readheadertimeout' can reclaim resources (memory and sockets) faster, but must be balanced against latency. In a low-latency internal network, 1s for idle timeouts and 200ms for header read timeouts provide a safe yet aggressive optimization. However, pushing 'dialtimeout' below 100ms or 'responseheadertimeout' below 1s is risky as it can lead to spurious 5xx errors during backend jitter or non-trivial request processing.
+**Action:** Use 1s for idle timeouts and 200ms for readHeaderTimeout to optimize resource reclamation while maintaining stability for backend processing.
