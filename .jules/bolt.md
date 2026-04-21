@@ -136,3 +136,7 @@
 ## 2026-04-19 - Optimized Global Connection Pooling and Idle Timeouts
 **Learning:** Scaling the global 'maxIdleConns' to the sum of all backend 'maxIdleConnsPerHost' quotas (e.g., 16000 for 2 backends with 8000 each) prevents global pool contention and ensures each service can fully utilize its connection reuse potential. Additionally, tightening the responding 'idletimeout' to 2s further accelerates resource reclamation on low-latency internal networks.
 **Action:** Always scale global connection pools to accommodate the aggregate per-host limits and push responding timeouts to the lowest stable threshold for internal traffic.
+
+## 2026-04-21 - Aggressive Timeout Risks and Connection Scaling
+**Learning:** While hyper-aggressive timeouts (e.g., 200ms readHeader, 1s idle) maximize resource reclamation on low-latency internal networks, they carry a high risk of dropping legitimate connections from unstable or high-latency clients. Additionally, aligning 'maxIdleConnsPerHost' with the global 'maxIdleConns' allows a single high-demand backend to fully utilize the connection pool, eliminating artificial bottlenecks during peak load on a specific service.
+**Action:** Push timeout boundaries cautiously in controlled environments and ensure per-host connection limits don't unnecessarily throttle individual high-demand backends.
