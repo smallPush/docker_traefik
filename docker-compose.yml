@@ -6,8 +6,8 @@ services:
     command:
       # Optimization: Further reduced log level from INFO to WARN to decrease CPU/IO overhead per request.
       - "--log.level=WARN"
-      # Optimization: Set max idle connections per host to 8000 to maximize backend connection reuse for individual backends.
-      - "--serverstransport.maxidleconnsperhost=8000"
+      # Optimization: Align max idle connections per host with the global limit to ensure a single backend can fully utilize the pool.
+      - "--serverstransport.maxidleconnsperhost=16000"
       # Optimization: Scale global connection pooling to 16000 to allow more concurrent backend connections across multiple backends.
       - "--serverstransport.maxidleconns=16000"
       # Optimization: Set forwarding timeouts to fail fast on unreachable backends and prevent hanging on headers.
@@ -36,13 +36,13 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.http.address=:80"
-      # Optimization: Tighten idle timeout to 2s to reclaim resources faster.
-      - "--entrypoints.http.transport.respondingtimeouts.idletimeout=2s"
+      # Optimization: Tighten idle timeout to 1s to reclaim resources faster on low-latency internal networks.
+      - "--entrypoints.http.transport.respondingtimeouts.idletimeout=1s"
       # Optimization: Tighten read and write timeouts to 10s to prevent resource exhaustion from hanging connections.
       - "--entrypoints.http.transport.respondingtimeouts.readtimeout=10s"
       - "--entrypoints.http.transport.respondingtimeouts.writetimeout=10s"
-      # Optimization: Tighten read header timeout to 250ms to prevent resource exhaustion from slow-reading clients.
-      - "--entrypoints.http.transport.respondingtimeouts.readheadertimeout=250ms"
+      # Optimization: Tighten read header timeout to 200ms to prevent resource exhaustion from slow-reading clients.
+      - "--entrypoints.http.transport.respondingtimeouts.readheadertimeout=200ms"
       # Optimization: Increase max concurrent streams for HTTP/2 to 1000 to allow more parallel requests per connection.
       - "--entrypoints.http.http2.maxconcurrentstreams=1000"
       # Optimization: Enable global compression for all routers on the http entrypoint.
