@@ -69,7 +69,7 @@ class TestDockerComposePerformance(unittest.TestCase):
         reservations = resources.get('reservations', {})
 
         self.assertEqual(reservations.get('cpus'), 0.25)
-        self.assertEqual(reservations.get('memory'), "134217728") # 128M in bytes
+        self.assertEqual(reservations.get('memory'), "268435456") # 256M in bytes
 
     def test_traefik_log_level(self):
         """Verify Traefik log level is set to WARN."""
@@ -85,7 +85,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_gogc(self):
         """Verify Traefik has GOGC set."""
-        self.assertEqual(self.traefik_env.get('GOGC'), "200")
+        self.assertEqual(self.traefik_env.get('GOGC'), "400")
 
     def test_traefik_api_dashboard(self):
         """Verify Traefik API dashboard is enabled."""
@@ -120,7 +120,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_max_idle_conns(self):
         """Verify Traefik global connection pooling is scaled."""
-        self.assertIn("--serverstransport.maxidleconns=16000", self.traefik_cmd_set)
+        self.assertIn("--serverstransport.maxidleconns=32000", self.traefik_cmd_set)
 
     def test_traefik_connection_pooling(self):
         """Verify Traefik connection pooling is tuned."""
@@ -133,7 +133,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_backend_idle_timeout(self):
         """Verify Traefik backend idle connection timeout is set."""
-        self.assertIn("--serverstransport.forwardingtimeouts.idleconntimeout=2s", self.traefik_cmd_set)
+        self.assertIn("--serverstransport.forwardingtimeouts.idleconntimeout=1s", self.traefik_cmd_set)
 
     def test_traefik_idle_timeout(self):
         """Verify Traefik idle timeout is optimized."""
