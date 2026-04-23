@@ -6,8 +6,8 @@ services:
     command:
       # Optimization: Further reduced log level from INFO to WARN to decrease CPU/IO overhead per request.
       - "--log.level=WARN"
-      # Optimization: Align max idle connections per host with the global limit to ensure a single backend can fully utilize the pool.
-      - "--serverstransport.maxidleconnsperhost=16000"
+      # Optimization: Align max idle connections per host with the global limit (32000) to ensure a single backend can fully utilize the pool.
+      - "--serverstransport.maxidleconnsperhost=32000"
       # Optimization: Scale global connection pooling to 32000 to prevent global pool contention across multiple backends.
       - "--serverstransport.maxidleconns=32000"
       # Optimization: Set forwarding timeouts to fail fast on unreachable backends and prevent hanging on headers.

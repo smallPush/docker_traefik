@@ -124,7 +124,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_connection_pooling(self):
         """Verify Traefik connection pooling is tuned."""
-        self.assertIn("--serverstransport.maxidleconnsperhost=16000", self.traefik_cmd_set)
+        self.assertIn("--serverstransport.maxidleconnsperhost=32000", self.traefik_cmd_set)
 
     def test_traefik_forwarding_timeouts(self):
         """Verify Traefik forwarding timeouts are set."""
