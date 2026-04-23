@@ -8,15 +8,15 @@ services:
       - "--log.level=WARN"
       # Optimization: Align max idle connections per host with the global limit to ensure a single backend can fully utilize the pool.
       - "--serverstransport.maxidleconnsperhost=16000"
-      # Optimization: Scale global connection pooling to 16000 to allow more concurrent backend connections across multiple backends.
-      - "--serverstransport.maxidleconns=16000"
+      # Optimization: Scale global connection pooling to 32000 to prevent global pool contention across multiple backends.
+      - "--serverstransport.maxidleconns=32000"
       # Optimization: Set forwarding timeouts to fail fast on unreachable backends and prevent hanging on headers.
       # dialtimeout is reduced to 100ms as backends are on the same internal network.
       - "--serverstransport.forwardingtimeouts.dialtimeout=100ms"
       # Optimization: Tighten response header timeout to 1s to fail fast on slow backends.
       - "--serverstransport.forwardingtimeouts.responseheadertimeout=1s"
-      # Optimization: Further reduce idle connection timeout to 2s for faster resource reclamation on internal networks.
-      - "--serverstransport.forwardingtimeouts.idleconntimeout=2s"
+      # Optimization: Further reduce idle connection timeout to 1s for faster resource reclamation on internal networks.
+      - "--serverstransport.forwardingtimeouts.idleconntimeout=1s"
       # Optimization: Narrow Docker provider scope to the primary network to reduce overhead during service discovery.
       - "--providers.docker.network=rubofvil_lan"
       # Optimization: Apply Docker provider filtering to only watch containers with 'traefik.enable=true' label.
@@ -86,7 +86,7 @@ services:
         # This prevents performance degradation and "starvation" when other containers compete for resources.
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
         limits:
           cpus: '0.75'
           memory: 512M
@@ -95,9 +95,8 @@ services:
       - GOMAXPROCS=1
       # Optimization: Set GOMEMLIMIT to 90% of the memory limit to optimize GC and prevent OOM kills.
       - GOMEMLIMIT=460MiB
-      # Optimization: Set GOGC to 200 to reduce GC frequency and CPU overhead when memory is available.
-      # GOMEMLIMIT provides a safety net to prevent OOM.
-      - GOGC=200
+      # Optimization: Set GOGC to 400 to further reduce GC frequency and CPU overhead, leveraging GOMEMLIMIT for safety.
+      - GOGC=400
 
   portainer:
     container_name: portainer

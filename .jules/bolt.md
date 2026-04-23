@@ -140,3 +140,7 @@
 ## 2026-04-21 - Aggressive Timeout Risks and Connection Scaling
 **Learning:** While hyper-aggressive timeouts (e.g., 200ms readHeader, 1s idle) maximize resource reclamation on low-latency internal networks, they carry a high risk of dropping legitimate connections from unstable or high-latency clients. Additionally, aligning 'maxIdleConnsPerHost' with the global 'maxIdleConns' allows a single high-demand backend to fully utilize the connection pool, eliminating artificial bottlenecks during peak load on a specific service.
 **Action:** Push timeout boundaries cautiously in controlled environments and ensure per-host connection limits don't unnecessarily throttle individual high-demand backends.
+
+## 2026-04-24 - Optimized Traefik GC and Connection Scaling
+**Learning:** Relaxing Traefik's Garbage Collector via 'GOGC=400' reduces CPU cycles spent on memory management by allowing the heap to grow larger before triggering a collection. To safely support this, increasing memory reservations (e.g., to 256M) ensures the OS doesn't starve the process while 'GOMEMLIMIT' provides a hard boundary against OOM. Additionally, scaling the global 'maxIdleConns' to 32000 (double the per-host limit) eliminates global pool contention when multiple services are under heavy load.
+**Action:** Use a combination of relaxed GOGC, increased memory reservations, and oversized global connection pools to maximize Traefik's throughput and minimize CPU overhead in high-concurrency environments.
