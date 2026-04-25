@@ -6,9 +6,9 @@ services:
     command:
       # Optimization: Further reduced log level from INFO to WARN to decrease CPU/IO overhead per request.
       - "--log.level=WARN"
-      # Optimization: Align max idle connections per host (32000) to ensure a single backend can fully utilize the pool.
-      - "--serverstransport.maxidleconnsperhost=32000"
-      # Optimization: Scale global connection pooling to 64000 (sum of per-host limits) to prevent global pool contention across multiple backends.
+      # Optimization: Align max idle connections per host (64000) to ensure a single backend can fully utilize the pool.
+      - "--serverstransport.maxidleconnsperhost=64000"
+      # Optimization: Scale global connection pooling to 64000 to prevent global pool contention.
       - "--serverstransport.maxidleconns=64000"
       # Optimization: Set forwarding timeouts to fail fast on unreachable backends and prevent hanging on headers.
       # dialtimeout is reduced to 100ms as backends are on the same internal network.
@@ -95,8 +95,8 @@ services:
       - GOMAXPROCS=1
       # Optimization: Set GOMEMLIMIT to 90% of the memory limit to optimize GC and prevent OOM kills.
       - GOMEMLIMIT=460MiB
-      # Optimization: Set GOGC to 400 to further reduce GC frequency and CPU overhead, leveraging GOMEMLIMIT for safety.
-      - GOGC=400
+      # Optimization: Set GOGC to 800 to further reduce GC frequency and CPU overhead, leveraging GOMEMLIMIT for safety.
+      - GOGC=800
 
   portainer:
     container_name: portainer
