@@ -144,3 +144,7 @@
 ## 2026-04-24 - Optimized Traefik GC and Connection Scaling
 **Learning:** Relaxing Traefik's Garbage Collector via 'GOGC=400' reduces CPU cycles spent on memory management by allowing the heap to grow larger before triggering a collection. To safely support this, increasing memory reservations (e.g., to 256M) ensures the OS doesn't starve the process while 'GOMEMLIMIT' provides a hard boundary against OOM. Additionally, scaling the global 'maxIdleConns' to 32000 (double the per-host limit) eliminates global pool contention when multiple services are under heavy load.
 **Action:** Use a combination of relaxed GOGC, increased memory reservations, and oversized global connection pools to maximize Traefik's throughput and minimize CPU overhead in high-concurrency environments.
+
+## 2026-04-24 - Optimized Global Connection Pooling for Multi-Backend Scaling
+**Learning:** In high-concurrency environments, setting the global `maxidleconns` to the sum of all backend `maxidleconnsperhost` quotas prevents global pool contention. With multiple services (e.g., Traefik Dashboard and Portainer) each allowed 32000 idle connections, a global limit of 64000 ensures that no service is artificially throttled by the global pool capacity during simultaneous peak loads.
+**Action:** Always scale the global connection pool to accommodate the aggregate per-host limits to eliminate global bottlenecks in multi-service deployments.
