@@ -85,7 +85,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_gogc(self):
         """Verify Traefik has GOGC set."""
-        self.assertEqual(self.traefik_env.get('GOGC'), "400")
+        self.assertEqual(self.traefik_env.get('GOGC'), "800")
 
     def test_traefik_api_dashboard(self):
         """Verify Traefik API dashboard is enabled."""
@@ -124,7 +124,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_connection_pooling(self):
         """Verify Traefik connection pooling is tuned."""
-        self.assertIn("--serverstransport.maxidleconnsperhost=32000", self.traefik_cmd_set)
+        self.assertIn("--serverstransport.maxidleconnsperhost=64000", self.traefik_cmd_set)
 
     def test_traefik_forwarding_timeouts(self):
         """Verify Traefik forwarding timeouts are set."""
