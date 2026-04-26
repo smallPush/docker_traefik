@@ -52,8 +52,8 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Verify Traefik has high nofile ulimits."""
         nofile = self.traefik_ulimits.get('nofile', {})
 
-        self.assertEqual(nofile.get('soft'), 65535)
-        self.assertEqual(nofile.get('hard'), 65535)
+        self.assertEqual(nofile.get('soft'), 131072)
+        self.assertEqual(nofile.get('hard'), 131072)
 
     def test_traefik_resource_limits(self):
         """Verify Traefik has resource limits defined."""
@@ -85,7 +85,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_gogc(self):
         """Verify Traefik has GOGC set."""
-        self.assertEqual(self.traefik_env.get('GOGC'), "400")
+        self.assertEqual(self.traefik_env.get('GOGC'), "800")
 
     def test_traefik_api_dashboard(self):
         """Verify Traefik API dashboard is enabled."""
@@ -124,7 +124,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_connection_pooling(self):
         """Verify Traefik connection pooling is tuned."""
-        self.assertIn("--serverstransport.maxidleconnsperhost=32000", self.traefik_cmd_set)
+        self.assertIn("--serverstransport.maxidleconnsperhost=64000", self.traefik_cmd_set)
 
     def test_traefik_forwarding_timeouts(self):
         """Verify Traefik forwarding timeouts are set."""
@@ -165,8 +165,8 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Verify Portainer has high nofile ulimits."""
         nofile = self.portainer_ulimits.get('nofile', {})
 
-        self.assertEqual(nofile.get('soft'), 65535)
-        self.assertEqual(nofile.get('hard'), 65535)
+        self.assertEqual(nofile.get('soft'), 131072)
+        self.assertEqual(nofile.get('hard'), 131072)
 
     def test_portainer_resource_limits(self):
         """Verify Portainer has resource limits defined."""
