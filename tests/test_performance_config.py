@@ -120,7 +120,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_max_idle_conns(self):
         """Verify Traefik global connection pooling is scaled."""
-        self.assertIn("--serverstransport.maxidleconns=64000", self.traefik_cmd_set)
+        self.assertIn("--serverstransport.maxidleconns=128000", self.traefik_cmd_set)
 
     def test_traefik_connection_pooling(self):
         """Verify Traefik connection pooling is tuned."""
@@ -190,7 +190,11 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_portainer_gogc(self):
         """Verify Portainer has GOGC set."""
-        self.assertEqual(self.portainer_env.get('GOGC'), "200")
+        self.assertEqual(self.portainer_env.get('GOGC'), "400")
+
+    def test_portainer_gomemlimit(self):
+        """Verify Portainer has GOMEMLIMIT set."""
+        self.assertEqual(self.portainer_env.get('GOMEMLIMIT'), "230MiB")
 
     def test_portainer_snapshot_interval(self):
         """Verify Portainer snapshot interval is optimized."""
