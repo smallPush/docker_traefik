@@ -148,3 +148,7 @@
 ## 2026-04-24 - Optimized Global Connection Pooling for Multi-Backend Scaling
 **Learning:** In high-concurrency environments, setting the global `maxidleconns` to the sum of all backend `maxidleconnsperhost` quotas prevents global pool contention. With multiple services (e.g., Traefik Dashboard and Portainer) each allowed 32000 idle connections, a global limit of 64000 ensures that no service is artificially throttled by the global pool capacity during simultaneous peak loads.
 **Action:** Always scale the global connection pool to accommodate the aggregate per-host limits to eliminate global bottlenecks in multi-service deployments.
+
+## 2026-04-29 - Optimized Traefik Multi-Backend Connection Reuse
+**Learning:** For a Traefik proxy managing multiple backends (e.g., Dashboard and Portainer) each with a 64000 per-host idle connection limit, a global limit of only 64000 creates a bottleneck where services compete for the global pool. Doubling the global limit to 128000 ensures both backends can simultaneously reach their peak connection reuse potential.
+**Action:** In multi-backend setups, ensure `maxidleconns` is at least the sum of all `maxidleconnsperhost` values to prevent global pool contention.
