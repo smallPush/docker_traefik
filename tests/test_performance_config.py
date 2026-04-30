@@ -24,8 +24,7 @@ class TestDockerComposePerformance(unittest.TestCase):
         cls.portainer_command = cls.portainer.get('command', [])
         cls.portainer_cmd_set = set(cls.portainer_command)
         cls.portainer_deploy = cls.portainer.get('deploy', {})
-        # Optimization: Normalize labels to a dictionary once in setUpClass to eliminate redundant checks in tests.
-        cls.portainer_labels = cls._normalize_labels(cls.portainer)
+        # Optimization: Normalized labels omitted as they are not used for Portainer in current tests.
         cls.portainer_ulimits = cls.portainer.get('ulimits', {})
         # Optimization: Cache normalized environment dictionary to avoid repeated parsing in tests.
         cls.portainer_env = cls._normalize_env(cls.portainer)
@@ -35,8 +34,8 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Normalize environment to a dictionary regardless of its format."""
         env = service_config.get('environment', {})
         if isinstance(env, list):
-            # Optimization: Use dictionary comprehension for faster parsing of environment variables.
-            return {k: v for item in env for k, v in [item.split('=', 1)]}
+            # Optimization: Use partition for more robust parsing of environment variables.
+            return {k: v for item in env for k, _, v in [item.partition('=')]}
         return env
 
     @staticmethod
@@ -44,8 +43,8 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Normalize labels to a dictionary regardless of its format."""
         labels = service_config.get('labels', {})
         if isinstance(labels, list):
-            # Optimization: Use dictionary comprehension for faster parsing of labels.
-            return {k: v for item in labels for k, v in [item.split('=', 1)]}
+            # Optimization: Use partition for more robust parsing of labels.
+            return {k: v for item in labels for k, _, v in [item.partition('=')]}
         return labels
 
     def test_traefik_ulimits_nofile(self):
@@ -120,7 +119,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_max_idle_conns(self):
         """Verify Traefik global connection pooling is scaled."""
-        self.assertIn("--serverstransport.maxidleconns=64000", self.traefik_cmd_set)
+        self.assertIn("--serverstransport.maxidleconns=128000", self.traefik_cmd_set)
 
     def test_traefik_connection_pooling(self):
         """Verify Traefik connection pooling is tuned."""

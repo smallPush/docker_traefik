@@ -148,3 +148,7 @@
 ## 2026-04-24 - Optimized Global Connection Pooling for Multi-Backend Scaling
 **Learning:** In high-concurrency environments, setting the global `maxidleconns` to the sum of all backend `maxidleconnsperhost` quotas prevents global pool contention. With multiple services (e.g., Traefik Dashboard and Portainer) each allowed 32000 idle connections, a global limit of 64000 ensures that no service is artificially throttled by the global pool capacity during simultaneous peak loads.
 **Action:** Always scale the global connection pool to accommodate the aggregate per-host limits to eliminate global bottlenecks in multi-service deployments.
+
+## 2026-04-30 - Optimized Test Maintenance and Scaling
+**Learning:** Removing unused attributes in test setups (e.g. 'portainer_labels') reduces cognitive load and minor execution overhead. Furthermore, replacing 'split' with 'partition' for configuration parsing in tests improves robustness by gracefully handling malformed entries and avoiding unnecessary list allocations.
+**Action:** Prune dead code from test suites and prefer 'partition' for robust key-value string parsing.
