@@ -52,8 +52,8 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Verify Traefik has high nofile ulimits."""
         nofile = self.traefik_ulimits.get('nofile', {})
 
-        self.assertEqual(nofile.get('soft'), 131072)
-        self.assertEqual(nofile.get('hard'), 131072)
+        self.assertEqual(nofile.get('soft'), 262144)
+        self.assertEqual(nofile.get('hard'), 262144)
 
     def test_traefik_resource_limits(self):
         """Verify Traefik has resource limits defined."""
@@ -120,7 +120,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_max_idle_conns(self):
         """Verify Traefik global connection pooling is scaled."""
-        self.assertIn("--serverstransport.maxidleconns=64000", self.traefik_cmd_set)
+        self.assertIn("--serverstransport.maxidleconns=128000", self.traefik_cmd_set)
 
     def test_traefik_connection_pooling(self):
         """Verify Traefik connection pooling is tuned."""
