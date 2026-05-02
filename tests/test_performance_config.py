@@ -35,8 +35,8 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Normalize environment to a dictionary regardless of its format."""
         env = service_config.get('environment', {})
         if isinstance(env, list):
-            # Optimization: Use dictionary comprehension for faster parsing of environment variables.
-            return {k: v for item in env for k, v in [item.split('=', 1)]}
+            # Optimization: Use dictionary comprehension and partition for faster/robust parsing of environment variables.
+            return {k: v for item in env for k, _, v in [item.partition('=')]}
         return env
 
     @staticmethod
@@ -44,8 +44,8 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Normalize labels to a dictionary regardless of its format."""
         labels = service_config.get('labels', {})
         if isinstance(labels, list):
-            # Optimization: Use dictionary comprehension for faster parsing of labels.
-            return {k: v for item in labels for k, v in [item.split('=', 1)]}
+            # Optimization: Use dictionary comprehension and partition for faster/robust parsing of labels.
+            return {k: v for item in labels for k, _, v in [item.partition('=')]}
         return labels
 
     def test_traefik_ulimits_nofile(self):
@@ -120,7 +120,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_max_idle_conns(self):
         """Verify Traefik global connection pooling is scaled."""
-        self.assertIn("--serverstransport.maxidleconns=64000", self.traefik_cmd_set)
+        self.assertIn("--serverstransport.maxidleconns=128000", self.traefik_cmd_set)
 
     def test_traefik_connection_pooling(self):
         """Verify Traefik connection pooling is tuned."""

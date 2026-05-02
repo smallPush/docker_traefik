@@ -148,3 +148,7 @@
 ## 2026-04-24 - Optimized Global Connection Pooling for Multi-Backend Scaling
 **Learning:** In high-concurrency environments, setting the global `maxidleconns` to the sum of all backend `maxidleconnsperhost` quotas prevents global pool contention. With multiple services (e.g., Traefik Dashboard and Portainer) each allowed 32000 idle connections, a global limit of 64000 ensures that no service is artificially throttled by the global pool capacity during simultaneous peak loads.
 **Action:** Always scale the global connection pool to accommodate the aggregate per-host limits to eliminate global bottlenecks in multi-service deployments.
+
+## 2026-04-25 - Scaled Connection Pooling and Robust Test Normalization
+**Learning:** Scaling Traefik's global `maxidleconns` to 128,000 (matching the sum of 64,000 per-host limits for two active backends) eliminates global pool contention during concurrent high-traffic bursts. Additionally, using `partition('=')` instead of `split('=', 1)` for parsing Docker configuration strings in tests is faster and more robust as it avoids list allocation and handles missing separators without errors.
+**Action:** Scale global connection pools to the sum of per-host limits and prefer `partition` for performance-sensitive string splitting in Python utilities.
