@@ -85,7 +85,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_gogc(self):
         """Verify Traefik has GOGC set."""
-        self.assertEqual(self.traefik_env.get('GOGC'), "800")
+        self.assertEqual(self.traefik_env.get('GOGC'), "1000")
 
     def test_traefik_api_dashboard(self):
         """Verify Traefik API dashboard is enabled."""
