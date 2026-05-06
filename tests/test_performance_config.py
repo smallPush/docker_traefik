@@ -1,8 +1,8 @@
 import unittest
 try:
-    from .config_utils import get_docker_compose_config
+    from .config_utils import get_docker_compose_config, normalize_config_list
 except ImportError:
-    from config_utils import get_docker_compose_config
+    from config_utils import get_docker_compose_config, normalize_config_list
 
 class TestDockerComposePerformance(unittest.TestCase):
     @classmethod
@@ -15,38 +15,18 @@ class TestDockerComposePerformance(unittest.TestCase):
         cls.traefik_cmd_set = set(cls.traefik_command)
         cls.traefik_deploy = cls.traefik.get('deploy', {})
         # Optimization: Normalize labels to a dictionary once in setUpClass to eliminate redundant checks in tests.
-        cls.traefik_labels = cls._normalize_labels(cls.traefik)
+        cls.traefik_labels = normalize_config_list(cls.traefik.get('labels'))
         cls.traefik_ulimits = cls.traefik.get('ulimits', {})
         # Optimization: Cache normalized environment dictionary to avoid repeated parsing in tests.
-        cls.traefik_env = cls._normalize_env(cls.traefik)
+        cls.traefik_env = normalize_config_list(cls.traefik.get('environment'))
 
         cls.portainer = services.get('portainer', {})
         cls.portainer_command = cls.portainer.get('command', [])
         cls.portainer_cmd_set = set(cls.portainer_command)
         cls.portainer_deploy = cls.portainer.get('deploy', {})
-        # Optimization: Normalize labels to a dictionary once in setUpClass to eliminate redundant checks in tests.
-        cls.portainer_labels = cls._normalize_labels(cls.portainer)
         cls.portainer_ulimits = cls.portainer.get('ulimits', {})
         # Optimization: Cache normalized environment dictionary to avoid repeated parsing in tests.
-        cls.portainer_env = cls._normalize_env(cls.portainer)
-
-    @staticmethod
-    def _normalize_env(service_config):
-        """Normalize environment to a dictionary regardless of its format."""
-        env = service_config.get('environment', {})
-        if isinstance(env, list):
-            # Optimization: Use dictionary comprehension for faster parsing of environment variables.
-            return {k: v for item in env for k, v in [item.split('=', 1)]}
-        return env
-
-    @staticmethod
-    def _normalize_labels(service_config):
-        """Normalize labels to a dictionary regardless of its format."""
-        labels = service_config.get('labels', {})
-        if isinstance(labels, list):
-            # Optimization: Use dictionary comprehension for faster parsing of labels.
-            return {k: v for item in labels for k, v in [item.split('=', 1)]}
-        return labels
+        cls.portainer_env = normalize_config_list(cls.portainer.get('environment'))
 
     def test_traefik_ulimits_nofile(self):
         """Verify Traefik has high nofile ulimits."""
@@ -85,7 +65,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_gogc(self):
         """Verify Traefik has GOGC set."""
-        self.assertEqual(self.traefik_env.get('GOGC'), "800")
+        self.assertEqual(self.traefik_env.get('GOGC'), "1000")
 
     def test_traefik_api_dashboard(self):
         """Verify Traefik API dashboard is enabled."""

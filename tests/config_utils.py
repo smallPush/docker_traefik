@@ -28,3 +28,12 @@ def get_docker_compose_config():
         raise unittest.SkipTest(f"Failed to parse JSON from 'docker compose config': {e}")
     except FileNotFoundError:
         raise unittest.SkipTest("The 'docker' command was not found. Please ensure Docker is installed.")
+
+def normalize_config_list(config_input):
+    """
+    Normalize environment or label lists into a dictionary.
+    Uses item.partition('=') for optimized performance and robustness against entries lacking '='.
+    """
+    if isinstance(config_input, list):
+        return {k: v for item in config_input for k, _, v in [item.partition('=')]}
+    return config_input or {}
