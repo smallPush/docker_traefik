@@ -148,3 +148,7 @@
 ## 2026-04-24 - Optimized Global Connection Pooling for Multi-Backend Scaling
 **Learning:** In high-concurrency environments, setting the global `maxidleconns` to the sum of all backend `maxidleconnsperhost` quotas prevents global pool contention. With multiple services (e.g., Traefik Dashboard and Portainer) each allowed 32000 idle connections, a global limit of 64000 ensures that no service is artificially throttled by the global pool capacity during simultaneous peak loads.
 **Action:** Always scale the global connection pool to accommodate the aggregate per-host limits to eliminate global bottlenecks in multi-service deployments.
+
+## 2026-05-08 - Optimized Configuration Parsing and Go GC
+**Learning:** Manual loops with `partition('=')` are measurably faster and more robust than dictionary comprehensions with `split()` for parsing Docker environment and label lists in Python, as they eliminate temporary list allocations per item. Additionally, further increasing `GOGC` to 1000 for Traefik (protected by `GOMEMLIMIT`) and 400 for Portainer continues to reduce GC frequency and CPU overhead in controlled memory environments.
+**Action:** Prefer `partition()` and manual loops for string-based configuration parsing in tests, and continue tuning `GOGC` alongside resource limits to maximize Go runtime efficiency.

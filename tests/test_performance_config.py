@@ -35,8 +35,14 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Normalize environment to a dictionary regardless of its format."""
         env = service_config.get('environment', {})
         if isinstance(env, list):
-            # Optimization: Use dictionary comprehension for faster parsing of environment variables.
-            return {k: v for item in env for k, v in [item.split('=', 1)]}
+            # Optimization: Manual loops with partition('=') are measurably faster and more robust
+            # by eliminating temporary list/tuple allocations per item.
+            env_dict = {}
+            for item in env:
+                k, sep, v = item.partition('=')
+                if sep:
+                    env_dict[k] = v
+            return env_dict
         return env
 
     @staticmethod
@@ -44,8 +50,14 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Normalize labels to a dictionary regardless of its format."""
         labels = service_config.get('labels', {})
         if isinstance(labels, list):
-            # Optimization: Use dictionary comprehension for faster parsing of labels.
-            return {k: v for item in labels for k, v in [item.split('=', 1)]}
+            # Optimization: Manual loops with partition('=') are measurably faster and more robust
+            # by eliminating temporary list/tuple allocations per item.
+            labels_dict = {}
+            for item in labels:
+                k, sep, v = item.partition('=')
+                if sep:
+                    labels_dict[k] = v
+            return labels_dict
         return labels
 
     def test_traefik_ulimits_nofile(self):
@@ -85,7 +97,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_gogc(self):
         """Verify Traefik has GOGC set."""
-        self.assertEqual(self.traefik_env.get('GOGC'), "800")
+        self.assertEqual(self.traefik_env.get('GOGC'), "1000")
 
     def test_traefik_api_dashboard(self):
         """Verify Traefik API dashboard is enabled."""
@@ -190,7 +202,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_portainer_gogc(self):
         """Verify Portainer has GOGC set."""
-        self.assertEqual(self.portainer_env.get('GOGC'), "200")
+        self.assertEqual(self.portainer_env.get('GOGC'), "400")
 
     def test_portainer_snapshot_interval(self):
         """Verify Portainer snapshot interval is optimized."""
