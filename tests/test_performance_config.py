@@ -44,8 +44,11 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Normalize labels to a dictionary regardless of its format."""
         labels = service_config.get('labels', {})
         if isinstance(labels, list):
-            # Optimization: Use dictionary comprehension for faster parsing of labels.
-            return {k: v for item in labels for k, v in [item.split('=', 1)]}
+            normalized = {}
+            for item in labels:
+                k, _, v = item.partition('=')
+                normalized[k] = v
+            return normalized
         return labels
 
     def test_traefik_ulimits_nofile(self):
@@ -199,6 +202,31 @@ class TestDockerComposePerformance(unittest.TestCase):
     def test_portainer_analytics_disabled(self):
         """Verify Portainer anonymous usage statistics are disabled."""
         self.assertIn("--no-analytics", self.portainer_cmd_set)
+
+    def test_normalize_labels_dict(self):
+        """Verify _normalize_labels handles dictionary input correctly."""
+        service_config = {'labels': {'key1': 'val1', 'key2': 'val2'}}
+        self.assertEqual(self._normalize_labels(service_config), {'key1': 'val1', 'key2': 'val2'})
+
+    def test_normalize_labels_list(self):
+        """Verify _normalize_labels handles list input with simple and multiple '=' signs."""
+        service_config = {'labels': ['key1=val1', 'key2=val2=extra']}
+        self.assertEqual(self._normalize_labels(service_config), {'key1': 'val1', 'key2': 'val2=extra'})
+
+    def test_normalize_labels_empty_list(self):
+        """Verify _normalize_labels handles empty list input."""
+        service_config = {'labels': []}
+        self.assertEqual(self._normalize_labels(service_config), {})
+
+    def test_normalize_labels_missing_key(self):
+        """Verify _normalize_labels handles missing 'labels' key."""
+        service_config = {}
+        self.assertEqual(self._normalize_labels(service_config), {})
+
+    def test_normalize_labels_no_equals(self):
+        """Verify _normalize_labels handles list item without an equals sign."""
+        service_config = {'labels': ['key1']}
+        self.assertEqual(self._normalize_labels(service_config), {'key1': ''})
 
 if __name__ == '__main__':
     unittest.main()
