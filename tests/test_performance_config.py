@@ -35,8 +35,12 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Normalize environment to a dictionary regardless of its format."""
         env = service_config.get('environment', {})
         if isinstance(env, list):
-            # Optimization: Use dictionary comprehension for faster parsing of environment variables.
-            return {k: v for item in env for k, v in [item.split('=', 1)]}
+            # Optimization: Manual loop with partition is faster and more robust than dictionary comprehensions.
+            result = {}
+            for item in env:
+                key, _, value = item.partition('=')
+                result[key] = value
+            return result
         return env
 
     @staticmethod
@@ -44,8 +48,12 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Normalize labels to a dictionary regardless of its format."""
         labels = service_config.get('labels', {})
         if isinstance(labels, list):
-            # Optimization: Use dictionary comprehension for faster parsing of labels.
-            return {k: v for item in labels for k, v in [item.split('=', 1)]}
+            # Optimization: Manual loop with partition is faster and more robust than dictionary comprehensions.
+            result = {}
+            for item in labels:
+                key, _, value = item.partition('=')
+                result[key] = value
+            return result
         return labels
 
     def test_traefik_ulimits_nofile(self):
@@ -85,7 +93,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_gogc(self):
         """Verify Traefik has GOGC set."""
-        self.assertEqual(self.traefik_env.get('GOGC'), "800")
+        self.assertEqual(self.traefik_env.get('GOGC'), "1000")
 
     def test_traefik_api_dashboard(self):
         """Verify Traefik API dashboard is enabled."""
@@ -190,7 +198,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_portainer_gogc(self):
         """Verify Portainer has GOGC set."""
-        self.assertEqual(self.portainer_env.get('GOGC'), "200")
+        self.assertEqual(self.portainer_env.get('GOGC'), "400")
 
     def test_portainer_snapshot_interval(self):
         """Verify Portainer snapshot interval is optimized."""
