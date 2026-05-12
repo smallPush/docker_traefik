@@ -148,3 +148,7 @@
 ## 2026-04-24 - Optimized Global Connection Pooling for Multi-Backend Scaling
 **Learning:** In high-concurrency environments, setting the global `maxidleconns` to the sum of all backend `maxidleconnsperhost` quotas prevents global pool contention. With multiple services (e.g., Traefik Dashboard and Portainer) each allowed 32000 idle connections, a global limit of 64000 ensures that no service is artificially throttled by the global pool capacity during simultaneous peak loads.
 **Action:** Always scale the global connection pool to accommodate the aggregate per-host limits to eliminate global bottlenecks in multi-service deployments.
+
+## 2026-05-12 - Targeted Connection Scaling and Persona Discipline
+**Learning:** Blindly doubling resource-heavy constants (e.g., scaling `maxidleconns` to 128,000 or `GOGC` to 400) without profiling evidence is "blind scaling" and risks OS-level resource exhaustion (e.g., port/file descriptor limits). Furthermore, micro-optimizing cold paths like test initialization (e.g., `partition` vs `split`) violates the persona's philosophy by sacrificing readability for negligible gain.
+**Action:** Implement exactly ONE focused architectural optimization per PR and prioritize readability over micro-optimizations in non-critical paths.
