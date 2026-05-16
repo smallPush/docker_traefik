@@ -35,8 +35,12 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Normalize environment to a dictionary regardless of its format."""
         env = service_config.get('environment', {})
         if isinstance(env, list):
-            # Optimization: Use dictionary comprehension for faster parsing of environment variables.
-            return {k: v for item in env for k, v in [item.split('=', 1)]}
+            # Optimization: Use manual loop with partition for faster parsing and fewer allocations.
+            res = {}
+            for item in env:
+                k, _, v = item.partition('=')
+                res[k] = v
+            return res
         return env
 
     @staticmethod
@@ -44,8 +48,12 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Normalize labels to a dictionary regardless of its format."""
         labels = service_config.get('labels', {})
         if isinstance(labels, list):
-            # Optimization: Use dictionary comprehension for faster parsing of labels.
-            return {k: v for item in labels for k, v in [item.split('=', 1)]}
+            # Optimization: Use manual loop with partition for faster parsing and fewer allocations.
+            res = {}
+            for item in labels:
+                k, _, v = item.partition('=')
+                res[k] = v
+            return res
         return labels
 
     def test_traefik_ulimits_nofile(self):
