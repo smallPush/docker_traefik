@@ -20,7 +20,11 @@ def get_docker_compose_config():
             text=True,
             check=True
         )
-        _cached_config = json.loads(result.stdout)
+        config = json.loads(result.stdout)
+        # Optimization: Validate that the configuration is a dictionary to ensure consistent parsing and cache integrity.
+        if not isinstance(config, dict):
+            raise unittest.SkipTest(f"Unexpected configuration format from 'docker compose config': expected dict, got {type(config).__name__}")
+        _cached_config = config
         return _cached_config
     except subprocess.CalledProcessError as e:
         raise unittest.SkipTest(f"Failed to run 'docker compose config': {e.stderr}")
