@@ -95,8 +95,8 @@ services:
       - GOMAXPROCS=1
       # Optimization: Set GOMEMLIMIT to 90% of the memory limit to optimize GC and prevent OOM kills.
       - GOMEMLIMIT=460MiB
-      # Optimization: Set GOGC to 800 to further reduce GC frequency and CPU overhead, leveraging GOMEMLIMIT for safety.
-      - GOGC=800
+      # Optimization: Set GOGC to 1000 to further reduce GC frequency and CPU overhead, leveraging GOMEMLIMIT for safety.
+      - GOGC=1000
 
   portainer:
     container_name: portainer

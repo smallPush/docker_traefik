@@ -1,8 +1,8 @@
 import unittest
 try:
-    from .config_utils import get_docker_compose_config
+    from .config_utils import get_docker_compose_config, normalize_config_list
 except ImportError:
-    from config_utils import get_docker_compose_config
+    from config_utils import get_docker_compose_config, normalize_config_list
 
 class TestDockerComposeSecurity(unittest.TestCase):
     @classmethod
@@ -12,6 +12,11 @@ class TestDockerComposeSecurity(unittest.TestCase):
         This significantly reduces total test execution time by avoiding redundant 'docker compose config' calls.
         """
         cls.config = get_docker_compose_config()
+        services = cls.config.get('services', {})
+        traefik = services.get('traefik', {})
+        # Optimization: Normalize and cache Traefik labels for O(1) lookups in security tests.
+        cls.traefik_labels = normalize_config_list(traefik.get('labels'))
+
         # Optimization: Cache raw content of docker-compose.yml to avoid redundant file I/O in tests.
         with open('docker-compose.yml', 'r') as f:
             cls.raw_config = f.read()

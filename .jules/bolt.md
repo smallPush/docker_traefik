@@ -148,3 +148,7 @@
 ## 2026-04-24 - Optimized Global Connection Pooling for Multi-Backend Scaling
 **Learning:** In high-concurrency environments, setting the global `maxidleconns` to the sum of all backend `maxidleconnsperhost` quotas prevents global pool contention. With multiple services (e.g., Traefik Dashboard and Portainer) each allowed 32000 idle connections, a global limit of 64000 ensures that no service is artificially throttled by the global pool capacity during simultaneous peak loads.
 **Action:** Always scale the global connection pool to accommodate the aggregate per-host limits to eliminate global bottlenecks in multi-service deployments.
+
+## 2026-05-06 - Optimized Traefik Go Runtime and Test Parsing
+**Learning:** Increasing 'GOGC' to 1000 for Go services, when paired with a 'GOMEMLIMIT', significantly reduces CPU cycles spent on garbage collection by allowing the heap to grow larger before triggering a collection. Additionally, centralizing configuration normalization in test suites using 'str.partition' and class-level caching improves both test robustness and execution speed.
+**Action:** Use aggressive 'GOGC' settings with 'GOMEMLIMIT' for Go services to maximize throughput, and always centralize/cache normalized configuration data in infrastructure test suites.
