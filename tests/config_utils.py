@@ -33,7 +33,13 @@ def normalize_config_list(config_input):
     """
     Normalize environment or label lists into a dictionary.
     Uses item.partition('=') for optimized performance and robustness against entries lacking '='.
+    This manual loop avoids the temporary list/tuple allocations of nested dictionary comprehensions.
     """
-    if isinstance(config_input, list):
-        return {k: v for item in config_input for k, _, v in [item.partition('=')]}
-    return config_input or {}
+    if not isinstance(config_input, list):
+        return config_input or {}
+
+    result = {}
+    for item in config_input:
+        k, _, v = item.partition('=')
+        result[k] = v
+    return result
