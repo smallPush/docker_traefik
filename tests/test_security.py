@@ -51,6 +51,16 @@ class TestDockerComposeSecurity(unittest.TestCase):
         self.assertNotIn("8080", exposed_ports, "Port 8080 should NOT be exposed for security")
         self.assertIn("22", exposed_ports, "Port 22 should be exposed for backward compatibility")
 
+    def test_portainer_no_exposed_ports(self):
+        """
+        Verify that Portainer does NOT expose any ports directly.
+        All access should be routed through Traefik for security and performance.
+        """
+        services = self.config.get('services', {})
+        portainer = services.get('portainer', {})
+        ports = portainer.get('ports', [])
+        self.assertEqual(len(ports), 0, "Portainer should NOT expose any ports directly")
+
     def test_traefik_dashboard_auth_not_hardcoded(self):
         """
         Verify that the Traefik dashboard authentication credentials are not hardcoded

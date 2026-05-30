@@ -100,6 +100,14 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Verify Traefik Docker provider filters are configured."""
         self.assertIn("--providers.docker.filters=label=traefik.enable=true", self.traefik_cmd_set)
 
+    def test_traefik_docker_provider_network(self):
+        """Verify Traefik Docker provider network is explicitly set."""
+        self.assertIn("--providers.docker.network=rubofvil_lan", self.traefik_cmd_set)
+
+    def test_traefik_check_new_version(self):
+        """Verify Traefik version check is disabled."""
+        self.assertIn("--global.checknewversion=false", self.traefik_cmd_set)
+
     def test_traefik_send_anonymous_usage(self):
         """Verify Traefik anonymous usage statistics are disabled."""
         self.assertIn("--global.sendanonymoususage=false", self.traefik_cmd_set)
@@ -199,6 +207,16 @@ class TestDockerComposePerformance(unittest.TestCase):
     def test_portainer_analytics_disabled(self):
         """Verify Portainer anonymous usage statistics are disabled."""
         self.assertIn("--no-analytics", self.portainer_cmd_set)
+
+    def test_traefik_network(self):
+        """Verify Traefik is on the correct network."""
+        networks = self.traefik.get('networks', {})
+        self.assertIn('rubofvil_lan', networks)
+
+    def test_portainer_network(self):
+        """Verify Portainer is on the correct network."""
+        networks = self.portainer.get('networks', {})
+        self.assertIn('rubofvil_lan', networks)
 
 if __name__ == '__main__':
     unittest.main()
