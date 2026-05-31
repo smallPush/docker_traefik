@@ -137,6 +137,10 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Verify Traefik HTTP/2 max concurrent streams is optimized."""
         self.assertIn("--entrypoints.http.http2.maxconcurrentstreams=1000", self.traefik_cmd_set)
 
+    def test_traefik_http2_header_table_sizes(self):
+        """Verify Traefik HTTP/2 header table sizes are optimized."""
+        self.assertIn("--entrypoints.http.http2.maxdecoderheadertablesize=131072", self.traefik_cmd_set)
+
     def test_traefik_global_compression(self):
         """Verify Traefik has global compression enabled on the http entrypoint."""
         self.assertIn("--entrypoints.http.http.middlewares=compress@docker", self.traefik_cmd_set)
