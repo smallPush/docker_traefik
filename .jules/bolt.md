@@ -156,3 +156,7 @@
 ## 2026-05-29 - Optimized Docker Config Parsing in Tests
 **Learning:** Manual loops using `item.partition('=')` are measurably faster (~12-15%) and more robust than nested dictionary comprehensions with `item.split('=', 1)` when parsing large lists of Docker environment variables or labels. `partition` avoids potential `ValueError` if the equals sign is missing and eliminates unnecessary temporary list/tuple allocations.
 **Action:** Use manual loops with `partition` for robust and efficient parsing of Docker-style configuration strings in performance-sensitive paths.
+
+## 2026-05-31 - Optimized Traefik HTTP/2 Header Compression
+**Learning:** Increasing `maxDecoderHeaderTableSize` for HTTP/2 entrypoints from the default 4KB to 128KB significantly improves HPACK compression efficiency for header-heavy requests (e.g., large cookies or JWTs). However, `maxEncoderHeaderTableSize` is NOT a valid Traefik entrypoint flag as the server's encoder table size is client-negotiated.
+**Action:** Tune `maxDecoderHeaderTableSize` for entrypoints to at least 64KB or 128KB in high-concurrency environments, but avoid using non-existent encoder flags.
