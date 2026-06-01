@@ -45,6 +45,10 @@ services:
       - "--entrypoints.http.transport.respondingtimeouts.readheadertimeout=200ms"
       # Optimization: Increase max concurrent streams for HTTP/2 to 1000 to allow more parallel requests per connection.
       - "--entrypoints.http.http2.maxconcurrentstreams=1000"
+      # Optimization: Increase HPACK dynamic table size to 128KB for both encoder and decoder.
+      # This improves header compression efficiency for asset-heavy or high-concurrency connections.
+      - "--entrypoints.http.http2.maxdecoderheadertablesize=131072"
+      - "--entrypoints.http.http2.maxencoderheadertablesize=131072"
       # Optimization: Enable global compression for all routers on the http entrypoint.
       # This reduces bandwidth usage and improves load times for all services by default.
       - "--entrypoints.http.http.middlewares=compress@docker"
