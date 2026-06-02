@@ -160,3 +160,7 @@
 ## 2026-06-01 - Optimized Traefik HTTP/2 Header Table Sizes
 **Learning:** Increasing the HPACK dynamic table size for both the decoder and encoder (e.g., to 128KB) significantly improves header compression efficiency for asset-heavy or high-concurrency connections. This reduces CPU and bandwidth overhead by allowing more headers to be referenced by index rather than being re-transmitted.
 **Action:** Always tune 'maxdecoderheadertablesize' and 'maxencoderheadertablesize' on high-traffic HTTP/2 entrypoints to maximize HPACK efficiency.
+
+## 2026-06-02 - Optimized Connection Scaling and Test Performance
+**Learning:** Aligning `maxIdleConnsPerHost` with the global `maxIdleConns` (128000) eliminates artificial per-host bottlenecks for high-traffic services, allowing a single backend to fully utilize the pool capacity. Additionally, pre-parsing nested configuration structures (like resource limits) in a test suite's `setUpClass` reduces redundant dictionary lookups and improves overall test execution efficiency.
+**Action:** Always align per-host and global connection pool limits for maximum flexibility and pre-parse complex data structures in test setup to minimize runtime overhead.
