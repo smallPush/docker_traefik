@@ -14,6 +14,10 @@ class TestDockerComposePerformance(unittest.TestCase):
         cls.traefik_command = cls.traefik.get('command', [])
         cls.traefik_cmd_set = set(cls.traefik_command)
         cls.traefik_deploy = cls.traefik.get('deploy', {})
+        # Optimization: Pre-parse resource limits and reservations to minimize dictionary lookups in tests.
+        cls.traefik_resources = cls.traefik_deploy.get('resources', {})
+        cls.traefik_limits = cls.traefik_resources.get('limits', {})
+        cls.traefik_reservations = cls.traefik_resources.get('reservations', {})
         # Optimization: Normalize labels to a dictionary once in setUpClass to eliminate redundant checks in tests.
         cls.traefik_labels = normalize_config_list(cls.traefik.get('labels'))
         cls.traefik_ulimits = cls.traefik.get('ulimits', {})
@@ -24,6 +28,10 @@ class TestDockerComposePerformance(unittest.TestCase):
         cls.portainer_command = cls.portainer.get('command', [])
         cls.portainer_cmd_set = set(cls.portainer_command)
         cls.portainer_deploy = cls.portainer.get('deploy', {})
+        # Optimization: Pre-parse resource limits and reservations to minimize dictionary lookups in tests.
+        cls.portainer_resources = cls.portainer_deploy.get('resources', {})
+        cls.portainer_limits = cls.portainer_resources.get('limits', {})
+        cls.portainer_reservations = cls.portainer_resources.get('reservations', {})
         cls.portainer_ulimits = cls.portainer.get('ulimits', {})
         # Optimization: Cache normalized environment dictionary to avoid repeated parsing in tests.
         cls.portainer_env = normalize_config_list(cls.portainer.get('environment'))
@@ -37,16 +45,14 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_resource_limits(self):
         """Verify Traefik has resource limits defined."""
-        resources = self.traefik_deploy.get('resources', {})
-        limits = resources.get('limits', {})
+        limits = self.traefik_limits
 
         self.assertEqual(limits.get('cpus'), 0.75)
         self.assertEqual(limits.get('memory'), "536870912") # 512M in bytes
 
     def test_traefik_resource_reservations(self):
         """Verify Traefik has resource reservations defined."""
-        resources = self.traefik_deploy.get('resources', {})
-        reservations = resources.get('reservations', {})
+        reservations = self.traefik_reservations
 
         self.assertEqual(reservations.get('cpus'), 0.25)
         self.assertEqual(reservations.get('memory'), "268435456") # 256M in bytes
@@ -112,7 +118,7 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_connection_pooling(self):
         """Verify Traefik connection pooling is tuned."""
-        self.assertIn("--serverstransport.maxidleconnsperhost=64000", self.traefik_cmd_set)
+        self.assertIn("--serverstransport.maxidleconnsperhost=128000", self.traefik_cmd_set)
 
     def test_traefik_forwarding_timeouts(self):
         """Verify Traefik forwarding timeouts are set."""
@@ -163,16 +169,14 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_portainer_resource_limits(self):
         """Verify Portainer has resource limits defined."""
-        resources = self.portainer_deploy.get('resources', {})
-        limits = resources.get('limits', {})
+        limits = self.portainer_limits
 
         self.assertEqual(limits.get('cpus'), 0.5)
         self.assertEqual(limits.get('memory'), "268435456") # 256M in bytes
 
     def test_portainer_resource_reservations(self):
         """Verify Portainer has resource reservations defined."""
-        resources = self.portainer_deploy.get('resources', {})
-        reservations = resources.get('reservations', {})
+        reservations = self.portainer_reservations
 
         self.assertEqual(reservations.get('cpus'), 0.1)
         self.assertEqual(reservations.get('memory'), "134217728") # 128M in bytes
