@@ -68,6 +68,8 @@ services:
       # Global compression middleware definition.
       # Optimization: Prefer more efficient compression algorithms (zstd, br) and lower threshold (256B)
       # to improve performance for modern clients and small JSON payloads.
+      # Fix: Explicitly activate the middleware in Traefik v3.
+      - "traefik.http.middlewares.compress.compress=true"
       - "traefik.http.middlewares.compress.compress.encodings=zstd,br,gzip"
       - "traefik.http.middlewares.compress.compress.minResponseBodyBytes=256"
     ulimits:
