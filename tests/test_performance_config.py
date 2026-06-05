@@ -151,6 +151,8 @@ class TestDockerComposePerformance(unittest.TestCase):
         # Optimization: Use pre-normalized labels dictionary for direct O(1) lookups.
         labels = self.traefik_labels
 
+        # Fix: Ensure the middleware is explicitly activated for Traefik v3.
+        self.assertEqual(labels.get("traefik.http.middlewares.compress.compress"), "true")
         self.assertEqual(labels.get("traefik.http.middlewares.compress.compress.encodings"), "zstd,br,gzip")
         self.assertEqual(labels.get("traefik.http.middlewares.compress.compress.minResponseBodyBytes"), "256")
 
