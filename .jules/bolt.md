@@ -160,3 +160,7 @@
 ## 2026-06-01 - Optimized Traefik HTTP/2 Header Table Sizes
 **Learning:** Increasing the HPACK dynamic table size for both the decoder and encoder (e.g., to 128KB) significantly improves header compression efficiency for asset-heavy or high-concurrency connections. This reduces CPU and bandwidth overhead by allowing more headers to be referenced by index rather than being re-transmitted.
 **Action:** Always tune 'maxdecoderheadertablesize' and 'maxencoderheadertablesize' on high-traffic HTTP/2 entrypoints to maximize HPACK efficiency.
+
+## 2026-06-08 - Fixed Traefik v3 Middleware Activation Gap
+**Learning:** In Traefik v3, explicitly activating a middleware via its base type label (e.g., `traefik.http.middlewares.compress.compress=true`) is required to instantiate it. Defining only sub-properties (like `encodings` or `minResponseBodyBytes`) results in the middleware being silently inactive, even if referenced in an entrypoint or router.
+**Action:** Always include the base `=true` activation label when defining Traefik middlewares to ensure they are correctly instantiated.

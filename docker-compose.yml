@@ -66,6 +66,9 @@ services:
       # Security: Basic auth middleware definition.
       - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_DASHBOARD_AUTH}"
       # Global compression middleware definition.
+      # Optimization: Explicitly activate the middleware via the base 'compress=true' label.
+      # In Traefik v3, sub-properties alone (like encodings) do not instantiate the middleware.
+      - "traefik.http.middlewares.compress.compress=true"
       # Optimization: Prefer more efficient compression algorithms (zstd, br) and lower threshold (256B)
       # to improve performance for modern clients and small JSON payloads.
       - "traefik.http.middlewares.compress.compress.encodings=zstd,br,gzip"
