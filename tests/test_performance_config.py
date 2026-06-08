@@ -147,10 +147,12 @@ class TestDockerComposePerformance(unittest.TestCase):
         self.assertIn("--entrypoints.http.http.middlewares=compress@docker", self.traefik_cmd_set)
 
     def test_traefik_compress_middleware_definition(self):
-        """Verify Traefik has the compress middleware defined with optimized settings."""
+        """Verify Traefik has the compress middleware defined and activated with optimized settings."""
         # Optimization: Use pre-normalized labels dictionary for direct O(1) lookups.
         labels = self.traefik_labels
 
+        # Optimization: Verify that the middleware is explicitly activated.
+        self.assertEqual(labels.get("traefik.http.middlewares.compress.compress"), "true")
         self.assertEqual(labels.get("traefik.http.middlewares.compress.compress.encodings"), "zstd,br,gzip")
         self.assertEqual(labels.get("traefik.http.middlewares.compress.compress.minResponseBodyBytes"), "256")
 
