@@ -66,9 +66,8 @@ services:
       # Security: Basic auth middleware definition.
       - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_DASHBOARD_AUTH}"
       # Global compression middleware definition.
-      # Optimization: Prefer more efficient compression algorithms (zstd, br) and lower threshold (256B)
-      # to improve performance for modern clients and small JSON payloads.
-      - "traefik.http.middlewares.compress.compress.encodings=zstd,br,gzip"
+      # Optimization: Use a lower threshold (256B) to improve performance for small JSON payloads.
+      # OSS Traefik handles encoding negotiation automatically.
       - "traefik.http.middlewares.compress.compress.minResponseBodyBytes=256"
     ulimits:
       # Optimization: Increase the maximum number of open files (nofile) to 131072.
