@@ -36,6 +36,8 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.http.address=:80"
+      # Optimization: Enable reuseport to improve multi-core scalability and connection distribution.
+      - "--entrypoints.http.reuseport=true"
       # Optimization: Tighten idle timeout to 1s to reclaim resources faster on low-latency internal networks.
       - "--entrypoints.http.transport.respondingtimeouts.idletimeout=1s"
       # Optimization: Tighten read and write timeouts to 10s to prevent resource exhaustion from hanging connections.
