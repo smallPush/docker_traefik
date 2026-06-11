@@ -92,6 +92,10 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Verify Traefik anonymous usage statistics are disabled."""
         self.assertIn("--global.sendanonymoususage=false", self.traefik_cmd_set)
 
+    def test_traefik_reuse_port(self):
+        """Verify Traefik reuseport optimization is enabled."""
+        self.assertIn("--entrypoints.http.reuseport=true", self.traefik_cmd_set)
+
     def test_traefik_ssh_entrypoint(self):
         """Verify Traefik SSH entrypoint is present."""
         self.assertIn("--entrypoints.ssh.address=:22", self.traefik_cmd_set)
@@ -151,7 +155,6 @@ class TestDockerComposePerformance(unittest.TestCase):
         # Optimization: Use pre-normalized labels dictionary for direct O(1) lookups.
         labels = self.traefik_labels
 
-        self.assertEqual(labels.get("traefik.http.middlewares.compress.compress.encodings"), "zstd,br,gzip")
         self.assertEqual(labels.get("traefik.http.middlewares.compress.compress.minResponseBodyBytes"), "256")
 
     def test_portainer_ulimits_nofile(self):

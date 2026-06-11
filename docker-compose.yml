@@ -36,6 +36,8 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.http.address=:80"
+      # Optimization: Enable reuseport to improve multi-core scalability by allowing the kernel to distribute connections.
+      - "--entrypoints.http.reuseport=true"
       # Optimization: Tighten idle timeout to 1s to reclaim resources faster on low-latency internal networks.
       - "--entrypoints.http.transport.respondingtimeouts.idletimeout=1s"
       # Optimization: Tighten read and write timeouts to 10s to prevent resource exhaustion from hanging connections.
@@ -66,9 +68,8 @@ services:
       # Security: Basic auth middleware definition.
       - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_DASHBOARD_AUTH}"
       # Global compression middleware definition.
-      # Optimization: Prefer more efficient compression algorithms (zstd, br) and lower threshold (256B)
-      # to improve performance for modern clients and small JSON payloads.
-      - "traefik.http.middlewares.compress.compress.encodings=zstd,br,gzip"
+      # Optimization: Lower threshold (256B) to improve performance for small JSON payloads.
+      # Note: 'encodings' removed as it is Enterprise-only and invalid in OSS.
       - "traefik.http.middlewares.compress.compress.minResponseBodyBytes=256"
     ulimits:
       # Optimization: Increase the maximum number of open files (nofile) to 131072.
