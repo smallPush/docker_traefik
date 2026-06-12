@@ -49,6 +49,9 @@ services:
       # This improves header compression efficiency for asset-heavy or high-concurrency connections.
       - "--entrypoints.http.http2.maxdecoderheadertablesize=131072"
       - "--entrypoints.http.http2.maxencoderheadertablesize=131072"
+      # Optimization: Enable reuseport to allow the kernel to distribute connections across multiple listener threads.
+      # This improves multi-core scalability by reducing lock contention on the accept loop.
+      - "--entrypoints.http.reuseport=true"
       # Optimization: Enable global compression for all routers on the http entrypoint.
       # This reduces bandwidth usage and improves load times for all services by default.
       - "--entrypoints.http.http.middlewares=compress@docker"
