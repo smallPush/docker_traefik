@@ -52,7 +52,11 @@ services:
       # Optimization: Enable global compression for all routers on the http entrypoint.
       # This reduces bandwidth usage and improves load times for all services by default.
       - "--entrypoints.http.http.middlewares=compress@docker"
+      # Optimization: Enable reusePort to allow the kernel to distribute connections across multiple threads, improving multi-core scalability.
+      - "--entrypoints.http.reuseport=true"
       - "--entrypoints.ssh.address=:22"
+      # Optimization: Enable reusePort for SSH to improve scalability for persistent connections.
+      - "--entrypoints.ssh.reuseport=true"
     labels:
       - "traefik.enable=true"
       # Optimization: Expose the dashboard via a router on the http entrypoint.
