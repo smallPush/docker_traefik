@@ -92,6 +92,11 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Verify Traefik anonymous usage statistics are disabled."""
         self.assertIn("--global.sendanonymoususage=false", self.traefik_cmd_set)
 
+    def test_traefik_reuse_port(self):
+        """Verify Traefik multi-core scalability is optimized with reuseport."""
+        self.assertIn("--entrypoints.http.reuseport=true", self.traefik_cmd_set)
+        self.assertIn("--entrypoints.ssh.reuseport=true", self.traefik_cmd_set)
+
     def test_traefik_ssh_entrypoint(self):
         """Verify Traefik SSH entrypoint is present."""
         self.assertIn("--entrypoints.ssh.address=:22", self.traefik_cmd_set)
