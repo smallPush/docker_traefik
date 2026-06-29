@@ -146,6 +146,11 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Verify Traefik has global compression enabled on the http entrypoint."""
         self.assertIn("--entrypoints.http.http.middlewares=compress@docker", self.traefik_cmd_set)
 
+    def test_traefik_reuse_port(self):
+        """Verify Traefik reuseport optimization is enabled for multi-core scalability."""
+        self.assertIn("--entrypoints.http.reuseport=true", self.traefik_cmd_set)
+        self.assertIn("--entrypoints.ssh.reuseport=true", self.traefik_cmd_set)
+
     def test_traefik_compress_middleware_definition(self):
         """Verify Traefik has the compress middleware defined with optimized settings."""
         # Optimization: Use pre-normalized labels dictionary for direct O(1) lookups.
