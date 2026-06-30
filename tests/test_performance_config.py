@@ -76,6 +76,11 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Verify Traefik allowemptyservices optimization is enabled."""
         self.assertIn("--providers.docker.allowemptyservices=true", self.traefik_cmd_set)
 
+    def test_traefik_reuse_port(self):
+        """Verify Traefik reuseport optimization is enabled for multi-core scalability."""
+        self.assertIn("--entrypoints.http.reuseport=true", self.traefik_cmd_set)
+        self.assertIn("--entrypoints.ssh.reuseport=true", self.traefik_cmd_set)
+
     def test_traefik_docker_provider_filters(self):
         """Verify Traefik Docker provider filters are configured."""
         self.assertIn("--providers.docker.filters=label=traefik.enable=true", self.traefik_cmd_set)
