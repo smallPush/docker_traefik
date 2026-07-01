@@ -160,3 +160,7 @@
 ## 2026-06-01 - Optimized Traefik HTTP/2 Header Table Sizes
 **Learning:** Increasing the HPACK dynamic table size for both the decoder and encoder (e.g., to 128KB) significantly improves header compression efficiency for asset-heavy or high-concurrency connections. This reduces CPU and bandwidth overhead by allowing more headers to be referenced by index rather than being re-transmitted.
 **Action:** Always tune 'maxdecoderheadertablesize' and 'maxencoderheadertablesize' on high-traffic HTTP/2 entrypoints to maximize HPACK efficiency.
+
+## 2026-07-01 - Optimized Traefik Multi-Core Scalability and Test Efficiency
+**Learning:** Enabling '--entrypoints.<name>.reuseport=true' allows the kernel to distribute incoming connections across multiple listener threads, significantly improving multi-core scalability for high-concurrency workloads. Additionally, caching resource limits and reservations as class attributes in Python test suites avoids redundant dictionary lookups, matching Bolt's performance philosophy for test execution.
+**Action:** Always enable 'reuseport' on high-traffic entrypoints and utilize class-level caching for infrastructure configuration in performance test suites.
