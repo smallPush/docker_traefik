@@ -96,6 +96,11 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Verify Traefik SSH entrypoint is present."""
         self.assertIn("--entrypoints.ssh.address=:22", self.traefik_cmd_set)
 
+    def test_traefik_reuse_port(self):
+        """Verify Traefik reuseport optimization is enabled for all entrypoints."""
+        self.assertIn("--entrypoints.http.reuseport=true", self.traefik_cmd_set)
+        self.assertIn("--entrypoints.ssh.reuseport=true", self.traefik_cmd_set)
+
     def test_traefik_dashboard_router(self):
         """Verify Traefik dashboard router is configured with optimized middleware chain."""
         # Optimization: Use pre-normalized labels dictionary for direct O(1) lookups.
@@ -124,8 +129,8 @@ class TestDockerComposePerformance(unittest.TestCase):
         self.assertIn("--serverstransport.forwardingtimeouts.idleconntimeout=1s", self.traefik_cmd_set)
 
     def test_traefik_idle_timeout(self):
-        """Verify Traefik idle timeout is optimized."""
-        self.assertIn("--entrypoints.http.transport.respondingtimeouts.idletimeout=1s", self.traefik_cmd_set)
+        """Verify Traefik idle timeout is optimized for keep-alive."""
+        self.assertIn("--entrypoints.http.transport.respondingtimeouts.idletimeout=60s", self.traefik_cmd_set)
 
     def test_traefik_read_write_timeouts(self):
         """Verify Traefik read and write timeouts are set."""

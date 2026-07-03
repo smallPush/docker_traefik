@@ -36,8 +36,10 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.http.address=:80"
-      # Optimization: Tighten idle timeout to 1s to reclaim resources faster on low-latency internal networks.
-      - "--entrypoints.http.transport.respondingtimeouts.idletimeout=1s"
+      # Optimization: Enable reuseport to allow the kernel to distribute incoming connections across listener threads.
+      - "--entrypoints.http.reuseport=true"
+      # Optimization: Increase idle timeout to 60s to maintain HTTP keep-alive and reduce TCP/TLS handshake overhead.
+      - "--entrypoints.http.transport.respondingtimeouts.idletimeout=60s"
       # Optimization: Tighten read and write timeouts to 10s to prevent resource exhaustion from hanging connections.
       - "--entrypoints.http.transport.respondingtimeouts.readtimeout=10s"
       - "--entrypoints.http.transport.respondingtimeouts.writetimeout=10s"
@@ -53,6 +55,8 @@ services:
       # This reduces bandwidth usage and improves load times for all services by default.
       - "--entrypoints.http.http.middlewares=compress@docker"
       - "--entrypoints.ssh.address=:22"
+      # Optimization: Enable reuseport for SSH to improve multi-core scalability for persistent connections.
+      - "--entrypoints.ssh.reuseport=true"
     labels:
       - "traefik.enable=true"
       # Optimization: Expose the dashboard via a router on the http entrypoint.
