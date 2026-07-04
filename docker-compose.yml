@@ -15,8 +15,8 @@ services:
       - "--serverstransport.forwardingtimeouts.dialtimeout=100ms"
       # Optimization: Tighten response header timeout to 1s to fail fast on slow backends.
       - "--serverstransport.forwardingtimeouts.responseheadertimeout=1s"
-      # Optimization: Further reduce idle connection timeout to 1s for faster resource reclamation on internal networks.
-      - "--serverstransport.forwardingtimeouts.idleconntimeout=1s"
+      # Optimization: Set idle connection timeout to 60s to preserve backend connection reuse and maximize throughput.
+      - "--serverstransport.forwardingtimeouts.idleconntimeout=60s"
       # Optimization: Narrow Docker provider scope to the primary network to reduce overhead during service discovery.
       - "--providers.docker.network=rubofvil_lan"
       # Optimization: Apply Docker provider filtering to only watch containers with 'traefik.enable=true' label.
@@ -36,8 +36,10 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.http.address=:80"
-      # Optimization: Tighten idle timeout to 1s to reclaim resources faster on low-latency internal networks.
-      - "--entrypoints.http.transport.respondingtimeouts.idletimeout=1s"
+      # Optimization: Enable reuseport to allow the kernel to distribute connections across multiple listener threads, improving multi-core scalability.
+      - "--entrypoints.http.reuseport=true"
+      # Optimization: Increase idle timeout to 60s to improve HTTP keep-alive efficiency and avoid frequent TCP/TLS handshakes.
+      - "--entrypoints.http.transport.respondingtimeouts.idletimeout=60s"
       # Optimization: Tighten read and write timeouts to 10s to prevent resource exhaustion from hanging connections.
       - "--entrypoints.http.transport.respondingtimeouts.readtimeout=10s"
       - "--entrypoints.http.transport.respondingtimeouts.writetimeout=10s"
@@ -53,6 +55,8 @@ services:
       # This reduces bandwidth usage and improves load times for all services by default.
       - "--entrypoints.http.http.middlewares=compress@docker"
       - "--entrypoints.ssh.address=:22"
+      # Optimization: Enable reuseport for SSH to allow kernel-level connection distribution and improve scalability.
+      - "--entrypoints.ssh.reuseport=true"
     labels:
       - "traefik.enable=true"
       # Optimization: Expose the dashboard via a router on the http entrypoint.
