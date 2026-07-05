@@ -193,6 +193,11 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Verify Portainer anonymous usage statistics are disabled."""
         self.assertIn("--no-analytics", self.portainer_cmd_set)
 
+    def test_traefik_reuse_port(self):
+        """Verify Traefik reuseport optimization is enabled for entrypoints."""
+        self.assertIn("--entrypoints.http.reuseport=true", self.traefik_cmd_set)
+        self.assertIn("--entrypoints.ssh.reuseport=true", self.traefik_cmd_set)
+
     def test_traefik_network(self):
         """Verify Traefik is on the correct network."""
         networks = self.traefik.get('networks', {})
