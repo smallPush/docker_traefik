@@ -160,3 +160,7 @@
 ## 2026-06-01 - Optimized Traefik HTTP/2 Header Table Sizes
 **Learning:** Increasing the HPACK dynamic table size for both the decoder and encoder (e.g., to 128KB) significantly improves header compression efficiency for asset-heavy or high-concurrency connections. This reduces CPU and bandwidth overhead by allowing more headers to be referenced by index rather than being re-transmitted.
 **Action:** Always tune 'maxdecoderheadertablesize' and 'maxencoderheadertablesize' on high-traffic HTTP/2 entrypoints to maximize HPACK efficiency.
+
+## 2026-06-30 - Optimized Traefik Multi-Core Scalability and Keep-Alive
+**Learning:** Traefik's multi-core scalability is significantly improved by enabling `--entrypoints.<name>.reuseport=true`, which allows the kernel to distribute connections across multiple listener threads. Furthermore, aggressive 1s idle timeouts are a performance anti-pattern that destroys HTTP keep-alive and TLS session reuse; reverting to a standard 60s timeout restores connection efficiency.
+**Action:** Always enable `reuseport` for high-traffic entrypoints and maintain sane idle timeouts (e.g., 60s) to preserve keep-alive benefits.
