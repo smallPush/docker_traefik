@@ -121,11 +121,16 @@ class TestDockerComposePerformance(unittest.TestCase):
 
     def test_traefik_backend_idle_timeout(self):
         """Verify Traefik backend idle connection timeout is set."""
-        self.assertIn("--serverstransport.forwardingtimeouts.idleconntimeout=1s", self.traefik_cmd_set)
+        self.assertIn("--serverstransport.forwardingtimeouts.idleconntimeout=60s", self.traefik_cmd_set)
 
     def test_traefik_idle_timeout(self):
         """Verify Traefik idle timeout is optimized."""
-        self.assertIn("--entrypoints.http.transport.respondingtimeouts.idletimeout=1s", self.traefik_cmd_set)
+        self.assertIn("--entrypoints.http.transport.respondingtimeouts.idletimeout=60s", self.traefik_cmd_set)
+
+    def test_traefik_reuse_port(self):
+        """Verify Traefik reuseport is enabled for http and ssh entrypoints."""
+        self.assertIn("--entrypoints.http.reuseport=true", self.traefik_cmd_set)
+        self.assertIn("--entrypoints.ssh.reuseport=true", self.traefik_cmd_set)
 
     def test_traefik_read_write_timeouts(self):
         """Verify Traefik read and write timeouts are set."""
