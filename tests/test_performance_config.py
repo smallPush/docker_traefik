@@ -142,6 +142,11 @@ class TestDockerComposePerformance(unittest.TestCase):
         self.assertIn("--entrypoints.http.http2.maxdecoderheadertablesize=131072", self.traefik_cmd_set)
         self.assertIn("--entrypoints.http.http2.maxencoderheadertablesize=131072", self.traefik_cmd_set)
 
+    def test_traefik_reuse_port(self):
+        """Verify Traefik reuseport is enabled for multi-core scalability."""
+        self.assertIn("--entrypoints.http.reuseport=true", self.traefik_cmd_set)
+        self.assertIn("--entrypoints.ssh.reuseport=true", self.traefik_cmd_set)
+
     def test_traefik_global_compression(self):
         """Verify Traefik has global compression enabled on the http entrypoint."""
         self.assertIn("--entrypoints.http.http.middlewares=compress@docker", self.traefik_cmd_set)
