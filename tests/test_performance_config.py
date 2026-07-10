@@ -96,6 +96,11 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Verify Traefik SSH entrypoint is present."""
         self.assertIn("--entrypoints.ssh.address=:22", self.traefik_cmd_set)
 
+    def test_traefik_reuse_port(self):
+        """Verify Traefik reuseport is enabled for http and ssh entrypoints."""
+        self.assertIn("--entrypoints.http.reuseport=true", self.traefik_cmd_set)
+        self.assertIn("--entrypoints.ssh.reuseport=true", self.traefik_cmd_set)
+
     def test_traefik_dashboard_router(self):
         """Verify Traefik dashboard router is configured with optimized middleware chain."""
         # Optimization: Use pre-normalized labels dictionary for direct O(1) lookups.
