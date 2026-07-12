@@ -36,6 +36,9 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.http.address=:80"
+      # Optimization: Enable reuseport to allow the kernel to distribute connections across multiple listener threads.
+      # This improves multi-core scalability and throughput for the http entrypoint.
+      - "--entrypoints.http.reuseport=true"
       # Optimization: Tighten idle timeout to 1s to reclaim resources faster on low-latency internal networks.
       - "--entrypoints.http.transport.respondingtimeouts.idletimeout=1s"
       # Optimization: Tighten read and write timeouts to 10s to prevent resource exhaustion from hanging connections.
@@ -53,6 +56,8 @@ services:
       # This reduces bandwidth usage and improves load times for all services by default.
       - "--entrypoints.http.http.middlewares=compress@docker"
       - "--entrypoints.ssh.address=:22"
+      # Optimization: Enable reuseport for the ssh entrypoint to improve scalability for persistent connections.
+      - "--entrypoints.ssh.reuseport=true"
     labels:
       - "traefik.enable=true"
       # Optimization: Expose the dashboard via a router on the http entrypoint.
