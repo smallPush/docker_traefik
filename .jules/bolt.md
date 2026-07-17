@@ -160,3 +160,7 @@
 ## 2026-06-01 - Optimized Traefik HTTP/2 Header Table Sizes
 **Learning:** Increasing the HPACK dynamic table size for both the decoder and encoder (e.g., to 128KB) significantly improves header compression efficiency for asset-heavy or high-concurrency connections. This reduces CPU and bandwidth overhead by allowing more headers to be referenced by index rather than being re-transmitted.
 **Action:** Always tune 'maxdecoderheadertablesize' and 'maxencoderheadertablesize' on high-traffic HTTP/2 entrypoints to maximize HPACK efficiency.
+
+## 2026-06-15 - Traefik Entrypoint Schema Restrictions and Test Suite Cache Preservation
+**Learning:** Traefik OSS (v2/v3) does not support a `reuseport` configuration parameter at the entrypoints level; attempting to use `--entrypoints.<name>.reuseport` causes startup failure, even if compose config validation passes. Additionally, unit tests that mock and clear global state caches must save and restore them in `setUp` and `tearDown` to ensure test isolation while preserving the warm cache across distinct test classes, avoiding slow duplicate subprocess executions.
+**Action:** Verify all Traefik CLI options against the official schema, and always save/restore global caches in test class lifecycle methods.
