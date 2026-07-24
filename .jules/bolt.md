@@ -160,3 +160,7 @@
 ## 2026-06-01 - Optimized Traefik HTTP/2 Header Table Sizes
 **Learning:** Increasing the HPACK dynamic table size for both the decoder and encoder (e.g., to 128KB) significantly improves header compression efficiency for asset-heavy or high-concurrency connections. This reduces CPU and bandwidth overhead by allowing more headers to be referenced by index rather than being re-transmitted.
 **Action:** Always tune 'maxdecoderheadertablesize' and 'maxencoderheadertablesize' on high-traffic HTTP/2 entrypoints to maximize HPACK efficiency.
+
+## 2026-06-02 - Optimized Traefik Provider Reload Throttling
+**Learning:** Default configuration behavior in Traefik triggers immediate reloads upon receiving provider events (like container starting/stopping). Under rapid container churn or automated deployment cycles, this causes CPU utilization spikes and degrades reverse proxy throughput. Setting `providersThrottleDuration` (e.g., to 5s) forces Traefik to throttle reloads, consolidating multiple registration events and reducing CPU overhead during high-churn scenarios.
+**Action:** Always tune `--providers.providersthrottleduration` to a sane value (such as `5s`) on the Docker/Kubernetes providers to decouple API polling/event-driven churn from CPU-intensive proxy routing table rebuilds.
