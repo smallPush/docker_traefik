@@ -29,6 +29,9 @@ services:
       # Optimization: Enable allowemptyservices to prevent full configuration reloads and CPU spikes
       # when a service temporarily has no active containers (e.g. during updates).
       - "--providers.docker.allowemptyservices=true"
+      # Optimization: Throttle provider configuration reload to reduce CPU spikes and stabilize Traefik
+      # when multiple configuration refresh events occur in rapid succession.
+      - "--providers.providersthrottleduration=5s"
       # Optimization: Enable dashboard mode to allow routing via the main entrypoint with compression.
       - "--api.dashboard=true"
       # Security: Disable insecure mode to prevent unauthorized access to the API and dashboard.
