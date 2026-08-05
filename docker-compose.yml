@@ -29,6 +29,8 @@ services:
       # Optimization: Enable allowemptyservices to prevent full configuration reloads and CPU spikes
       # when a service temporarily has no active containers (e.g. during updates).
       - "--providers.docker.allowemptyservices=true"
+      # Optimization: Set provider configuration reload throttling duration to 5s to prevent excessive reloads and CPU spikes.
+      - "--providers.providersthrottleduration=5s"
       # Optimization: Enable dashboard mode to allow routing via the main entrypoint with compression.
       - "--api.dashboard=true"
       # Security: Disable insecure mode to prevent unauthorized access to the API and dashboard.
