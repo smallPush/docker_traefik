@@ -22,6 +22,9 @@ services:
       # Optimization: Apply Docker provider filtering to only watch containers with 'traefik.enable=true' label.
       # This reduces CPU and memory usage by filtering events and metadata at the Docker API level.
       - "--providers.docker.filters=label=traefik.enable=true"
+      # Optimization: Throttle provider configuration reloads to a minimum interval of 2 seconds.
+      # This prevents excessive configuration reloads and CPU spikes during rapid container churn or updates.
+      - "--providers.providersThrottleDuration=2s"
       # Optimization: Disable version check and anonymous usage statistics to reduce unnecessary outbound requests on startup.
       - "--global.checknewversion=false"
       # Optimization: Disable anonymous usage statistics to reduce unnecessary outbound network requests and minor processing overhead.
