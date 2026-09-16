@@ -80,6 +80,10 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Verify Traefik Docker provider filters are configured."""
         self.assertIn("--providers.docker.filters=label=traefik.enable=true", self.traefik_cmd_set)
 
+    def test_traefik_providers_throttle_duration(self):
+        """Verify Traefik provider configuration reloads are throttled."""
+        self.assertIn("--providers.providersThrottleDuration=2s", self.traefik_cmd_set)
+
     def test_traefik_docker_provider_network(self):
         """Verify Traefik Docker provider network is explicitly set."""
         self.assertIn("--providers.docker.network=rubofvil_lan", self.traefik_cmd_set)
