@@ -76,6 +76,10 @@ class TestDockerComposePerformance(unittest.TestCase):
         """Verify Traefik allowemptyservices optimization is enabled."""
         self.assertIn("--providers.docker.allowemptyservices=true", self.traefik_cmd_set)
 
+    def test_traefik_providers_throttle_duration(self):
+        """Verify Traefik provider reload throttling duration is set."""
+        self.assertIn("--providers.providersThrottleDuration=2s", self.traefik_cmd_set)
+
     def test_traefik_docker_provider_filters(self):
         """Verify Traefik Docker provider filters are configured."""
         self.assertIn("--providers.docker.filters=label=traefik.enable=true", self.traefik_cmd_set)
