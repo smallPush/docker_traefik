@@ -26,6 +26,9 @@ services:
       - "--global.checknewversion=false"
       # Optimization: Disable anonymous usage statistics to reduce unnecessary outbound network requests and minor processing overhead.
       - "--global.sendanonymoususage=false"
+      # Optimization: Set providersThrottleDuration to 2s to throttle configuration reloads and prevent
+      # excessive CPU spikes during rapid orchestration events or container churn.
+      - "--providers.providersThrottleDuration=2s"
       # Optimization: Enable allowemptyservices to prevent full configuration reloads and CPU spikes
       # when a service temporarily has no active containers (e.g. during updates).
       - "--providers.docker.allowemptyservices=true"
